@@ -6,11 +6,8 @@ function Index() {
   return <div>Index</div>;
 }
 
-const root = ReactDOM.createRoot(document.querySelector("#root")!);
-root.render(
-  <BrowserRouter>
-    <Routes>
-      <Route index element={<App />} />
-    </Routes>
-  </BrowserRouter>,
+ReactDOM.createRoot(document.querySelector("#root")!).render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
 );

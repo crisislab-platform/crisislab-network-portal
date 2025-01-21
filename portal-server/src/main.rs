@@ -4,6 +4,8 @@ use rocket::fs::NamedFile;
 use rocket::fs::{relative, FileServer};
 use std::path::Path;
 
+mod db;
+
 #[get("/")]
 async fn index() -> Option<NamedFile> {
     NamedFile::open(Path::new("public/index.html")).await.ok() // Serve `index.html` directly

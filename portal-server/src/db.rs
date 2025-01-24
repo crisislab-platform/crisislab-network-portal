@@ -1,6 +1,14 @@
 use bcrypt::{hash, verify, DEFAULT_COST};
 use rusqlite::Error as RusqliteError;
 use rusqlite::{params, Connection, OptionalExtension, Result};
+use serde::Serialize;
+
+#[derive(Serialize)]
+pub struct User {
+    pub id: i32,
+    pub username: String,
+    pub is_admin: bool,
+}
 
 pub fn initialize_database(db_path: &str) -> Result<Connection> {
     let conn = Connection::open(db_path)?;
@@ -60,7 +68,7 @@ pub fn new_user(
     if !can_add {
         Ok(false)
     } else {
-        let mut add_user_stmt = conn.execute(
+        conn.execute(
             "INSERT INTO users (username, password, is_admin) VALUES (?, ?, ?);",
             params![uname, hash(pword, DEFAULT_COST).ok(), admin],
         )?;
@@ -114,7 +122,6 @@ pub fn update_password(
         auth = false;
     }
 
-    let oldP = hash(old_password, DEFAULT_COST).ok();
     let newP = hash(new_password, DEFAULT_COST).ok();
 
     let stored_password: String = conn
@@ -140,4 +147,22 @@ pub fn update_password(
     } else {
         Ok(false)
     }
+}
+
+pub fn get_all_users(conn: &Connection) -> rusqlite::Result<Vec<User>> {
+    let mut stmt = conn.prepare("SELECT id, username, is_admin FROM users")?;
+    let user_iter = stmt.query_map([], |row| {
+        Ok(User {
+            id: row.get(0)?,
+            username: row.get(1)?,
+            is_admin: row.get(2)?,
+        })
+    })?;
+
+    let mut users = Vec::new();
+    for user in user_iter {
+        users.push(user?);
+    }
+
+    Ok(users)
 }

@@ -2,7 +2,7 @@
 extern crate rocket;
 use bcrypt::{hash, verify, DEFAULT_COST};
 use chrono::Utc;
-use db::{delete_user, initialize_database, new_user, verify_password};
+use db::{delete_user, get_all_users, initialize_database, new_user, verify_password, User};
 use jsonwebtoken::{encode, EncodingKey, Header};
 use rocket::fs::NamedFile;
 use rocket::fs::{relative, FileServer};
@@ -71,7 +71,8 @@ async fn login(
     let login_data = login_data.into_inner();
     let conn = conn.lock().unwrap();
 
-    let verify_result = verify_password(&conn, login_data.username, login_data.password)?;
+    let verify_result = verify_password(&conn, &login_data.username, &login_data.password)
+        .map_err(|_| status::Unauthorized("Database query failed".to_string()))?;
 
     if verify_result {
         // Create JWT claims
@@ -86,7 +87,7 @@ async fn login(
             &claims,
             &EncodingKey::from_secret(SECRET_KEY),
         )
-        .map_err(|_| status::Unauthorized(Some("Token generation failed".into())))?;
+        .map_err(|_| status::Unauthorized("Token generation failed".into()))?;
 
         // Return the token as JSON
         Ok(Json(LoginResponse { token }))
@@ -110,12 +111,12 @@ async fn add_user(
 
     let passed = new_user(
         &conn,
-        add_user_data.creator,
-        add_user_data.username,
-        add_user_data.password,
-        add_user_data.isAdmin,
+        &add_user_data.creator,
+        &add_user_data.username,
+        &add_user_data.password,
+        &add_user_data.isAdmin,
     )
-    .map_err(|_| status::Unauthorized(Some("Failed to write user to database".into())))?;
+    .map_err(|_| status::Unauthorized("Failed to write user to database".into()))?;
     let username: String = add_user_data.username;
     if passed {
         Ok(Json(NewUserResponse { username }))
@@ -134,7 +135,8 @@ async fn remove_user(
     let remove_user_data = user_data.into_inner();
     let conn = conn.lock().unwrap();
 
-    let passed: bool = delete_user(&conn, remove_user_data.remover, remove_user_data.username)?;
+    let passed: bool = delete_user(&conn, &remove_user_data.remover, &remove_user_data.username)
+        .map_err(|_| status::Unauthorized("database delete failed".to_string()))?;
 
     let removed_user: String = remove_user_data.username;
 
@@ -144,6 +146,15 @@ async fn remove_user(
         Err(status::Unauthorized(
             "invalid permissons or user doesn't exist".to_string(),
         ))
+    }
+}
+
+#[get("/users")]
+async fn all_users(conn: &State<Mutex<rusqlite::Connection>>) -> Json<Vec<User>> {
+    let conn = conn.lock().unwrap();
+    match get_all_users(&conn) {
+        Ok(users) => Json(users),
+        Err(_) => Json(vec![]),
     }
 }
 

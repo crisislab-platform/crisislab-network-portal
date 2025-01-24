@@ -2,11 +2,19 @@ import React from 'react'
 import { useNavigate, useLocation } from 'react-router-dom';
 
 
-export default function Header() {
+export default function Header({loggedIn, setLoggedIn}) {
   const navigate = useNavigate();
   const location = useLocation();
   const goToTable = () => { navigate('/table')};
   const goToMap = () => { navigate('/map')}
+  const goToAccounts = () => {
+    setLoggedIn(true)
+    navigate('/accounts')
+  }
+  const logOut = () => {
+    setLoggedIn(false);
+    navigate('/')
+  }
   return (
     <div className='header-div'>
       <div className='title-format'>
@@ -24,6 +32,12 @@ export default function Header() {
           onClick={goToMap}
         >
           Map
+        </a>
+        <a
+          className={`nav-button ${location.pathname === '/accounts' ? 'active' : ''}`}
+          onClick={loggedIn ? logOut : goToAccounts}
+        >
+          {loggedIn ? "Logout" : "Login"}
         </a>
       </div>
      </div> 

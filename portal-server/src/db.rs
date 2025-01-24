@@ -30,9 +30,10 @@ pub fn initialize_database(db_path: &str) -> Result<Connection> {
         let admin_exists: i64 = stmt.query_row([], |row| row.get(0))?;
 
         if admin_exists == 0 {
+            let pword = "admin";
             conn.execute(
                 "INSERT INTO users (username, password, is_admin) VALUES (?1, ?2, ?3);",
-                params!["admin", "admin", true],
+                params!["admin", hash(pword, DEFAULT_COST).ok(), true],
             )?;
             println!("Admin user created with username: admin and password: admin");
         } else {

@@ -8,7 +8,6 @@ export default function Header({loggedIn, setLoggedIn}) {
   const goToTable = () => { navigate('/table')};
   const goToMap = () => { navigate('/map')}
   const goToAccounts = () => {
-    setLoggedIn(true)
     navigate('/accounts')
   }
   const logOut = () => {

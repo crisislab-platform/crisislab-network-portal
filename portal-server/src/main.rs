@@ -2,13 +2,17 @@
 extern crate rocket;
 use bcrypt::{hash, verify, DEFAULT_COST};
 use chrono::Utc;
-use db::{delete_user, get_all_users, initialize_database, new_user, verify_password, User};
+use db::{
+    delete_user, get_all_users, initialize_database, new_user, set_token, verify_password, User,
+};
 use jsonwebtoken::{encode, EncodingKey, Header};
 use rocket::fs::NamedFile;
 use rocket::fs::{relative, FileServer};
+use rocket::http::Status;
 use rocket::response::status;
 use rocket::serde::{json::Json, Deserialize, Serialize};
 use rocket::State;
+use std::arch::asm;
 use std::path::Path;
 use std::sync::Mutex;
 
@@ -58,6 +62,11 @@ struct RemoveUserResponse {
     removed_user: String,
 }
 
+#[derive(Deserialize)]
+struct LogoutData {
+    username: String,
+}
+
 /// Secret key for JWT
 const SECRET_KEY: &[u8] = b"yowzabazinga";
 
@@ -77,7 +86,7 @@ async fn login(
     if verify_result {
         // Create JWT claims
         let claims = Claims {
-            sub: login_data.username,
+            sub: login_data.username.clone(),
             exp: chrono::Utc::now().timestamp() as usize + 3600,
         };
 
@@ -88,6 +97,9 @@ async fn login(
             &EncodingKey::from_secret(SECRET_KEY),
         )
         .map_err(|_| status::Unauthorized("Token generation failed".into()))?;
+
+        set_token(&conn, &login_data.username, &token)
+            .map_err(|_| status::Unauthorized("Adding token to database failed".to_string()))?;
 
         // Return the token as JSON
         Ok(Json(LoginResponse { token }))
@@ -158,6 +170,21 @@ async fn all_users(conn: &State<Mutex<rusqlite::Connection>>) -> Json<Vec<User>>
     }
 }
 
+#[post("/logout", data = "<user_data>")]
+async fn logout(
+    conn: &State<Mutex<rusqlite::Connection>>,
+    user_data: Json<LogoutData>,
+) -> Result<Status, Status> {
+    let logout_user_data = user_data.into_inner();
+    let conn = conn.lock().map_err(|_| Status::InternalServerError)?;
+    let empty_string = "";
+    let result = set_token(&conn, &logout_user_data.username, &empty_string);
+    match result {
+        Ok(_) => Ok(Status::NoContent),
+        Err(_) => Err(Status::InternalServerError),
+    }
+}
+
 #[get("/")]
 async fn index() -> Option<NamedFile> {
     NamedFile::open(Path::new("public/index.html")).await.ok() // Serve `index.html` directly
@@ -168,6 +195,6 @@ fn rocket() -> _ {
     let conn = initialize_database("users.db").expect("Failed to initialize database");
     rocket::build()
         .manage(Mutex::new(conn))
-        .mount("/", routes![index, login,]) // Route for `/`
+        .mount("/", routes![index, login, logout]) // Route for `/`
         .mount("/public", FileServer::from(relative!("public"))) // Serve other static files
 }

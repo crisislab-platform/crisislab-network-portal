@@ -1,7 +1,9 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom';
+import { decodeJwt } from 'jose';
+import { decode } from 'jose/dist/types/util/base64url';
 
-export default function Login({setLoggedIn}) {
+export default function Login({setLoggedIn, setCurrUser, host}) {
     const [username, setUsername] = useState<string>("");
     const [password, setPassword] = useState<string>("");
     const [error, setError] = useState("");
@@ -10,7 +12,7 @@ export default function Login({setLoggedIn}) {
         event.preventDefault();
 
         try {
-            const response = await fetch("http://" + location.host + "/login", {
+            const response = await fetch("http://" + host + "/login", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -28,6 +30,10 @@ export default function Login({setLoggedIn}) {
             const data = await response.json();
 
             localStorage.setItem("token", data.token)
+
+            const payload = decodeJwt(data.token)
+
+            setCurrUser(payload.sub || "unknown")
 
             alert("Login sucessfull!");
             

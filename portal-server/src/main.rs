@@ -3,7 +3,7 @@ extern crate rocket;
 use bcrypt::{hash, verify, DEFAULT_COST};
 use chrono::Utc;
 use db::{
-    delete_user, get_all_users, initialize_database, new_user, set_token, verify_password, User,
+    delete_user, get_all_users, initialize_database, new_user, set_token, verify_password, is_admin, User,
 };
 use jsonwebtoken::{encode, EncodingKey, Header};
 use rocket::fs::NamedFile;
@@ -65,6 +65,11 @@ struct RemoveUserResponse {
 #[derive(Deserialize)]
 struct LogoutData {
     username: String,
+}
+
+#[derive(Deserialize, Serialize)]
+struct AdminCheckResponse {
+    is_admin: bool,
 }
 
 /// Secret key for JWT
@@ -185,6 +190,18 @@ async fn logout(
     }
 }
 
+#[get("/admincheck/<username>")]
+async fn admin_check(
+    username: &str,
+    conn: &State<Mutex<rusqlite::Connection>>,
+) -> Result<Json<AdminCheckResponse>, Status> {
+    let conn = conn.lock().unwrap();
+    match is_admin(&conn, username) {
+        Ok(is_admin) => Ok(Json(AdminCheckResponse { is_admin })),
+        Err(_) => Err(Status::InternalServerError),
+    }
+}
+
 #[get("/")]
 async fn index() -> Option<NamedFile> {
     NamedFile::open(Path::new("public/index.html")).await.ok() // Serve `index.html` directly
@@ -195,6 +212,6 @@ fn rocket() -> _ {
     let conn = initialize_database("users.db").expect("Failed to initialize database");
     rocket::build()
         .manage(Mutex::new(conn))
-        .mount("/", routes![index, login, logout]) // Route for `/`
+        .mount("/", routes![index, login, logout, all_users, admin_check]) // Route for `/`
         .mount("/public", FileServer::from(relative!("public"))) // Serve other static files
 }

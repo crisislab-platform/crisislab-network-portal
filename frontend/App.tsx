@@ -19,7 +19,7 @@ const App: React.FC = () => {
       <Routes>
         <Route path="/table" element={<Table />} />
         <Route path="/map" element={<Map />} />
-        <Route path="/accounts" element={<Accounts loggedIn={loggedIn} setLoggedIn={setLoggedIn} setCurrUser={setCurrUser} host={host}/>}/>
+        <Route path="/accounts" element={<Accounts loggedIn={loggedIn} setLoggedIn={setLoggedIn} setCurrUser={setCurrUser} host={host} currUser={currUser}/>}/>
       </Routes>
     </Router>
     </div>

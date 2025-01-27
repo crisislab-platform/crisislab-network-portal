@@ -66,9 +66,10 @@ export default function Header({ loggedIn, setLoggedIn, currUser, setCurrUser, h
         </a>
         <a
           className={`nav-button ${location.pathname === "/accounts" ? "active" : ""}`}
-          onClick={loggedIn ? logOut : goToAccounts}
+          onClick={goToAccounts}
+          
         >
-          {loggedIn ? "Logout" : "Login"}
+          {loggedIn ? "Account" : "Login"}
         </a>
       </div>
     </div>

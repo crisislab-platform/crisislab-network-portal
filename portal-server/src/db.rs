@@ -33,7 +33,7 @@ pub fn initialize_database(db_path: &str) -> Result<Connection> {
             let pword = "admin";
             conn.execute(
                 "INSERT INTO users (username, password, is_admin) VALUES (?1, ?2, ?3);",
-                params!["admin", hash(pword, DEFAULT_COST).ok(), true],
+                params!["admin", hash(pword, DEFAULT_COST).ok( ), true],
             )?;
             println!("Admin user created with username: admin and password: admin");
         } else {
@@ -166,4 +166,9 @@ pub fn get_all_users(conn: &Connection) -> rusqlite::Result<Vec<User>> {
     }
 
     Ok(users)
+}
+
+pub fn is_admin(conn: &Connection, uname: &str) -> rusqlite::Result<bool> {
+    let res: Option<bool> = conn.prepare("SELECT is_admin FROM users WHERE username = ?1")?.query_row(params![uname], |row| row.get(0)).optional()?;
+    Ok(res.unwrap_or(false))
 }

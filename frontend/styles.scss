@@ -73,3 +73,20 @@ html {
 .header-div{
     margin-bottom: 0.5rem;
 }
+
+.all-users-div{
+    background: #aaa;
+    margin-top: 0.125rem;
+    padding-top: 0.125rem;
+    margin-bottom: 0.125rem;
+    padding-bottom: 0.125rem;
+    padding-left: 0.25rem;
+    padding-right: 0.25rem;
+    box-shadow: 2px 2px #bbb;
+}
+
+.users-li{
+    background: #ccc;
+    list-style-type: none;
+
+}

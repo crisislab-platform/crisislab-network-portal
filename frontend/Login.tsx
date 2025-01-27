@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { decodeJwt } from 'jose';
 import { decode } from 'jose/dist/types/util/base64url';
 
-export default function Login({setLoggedIn, setCurrUser, host}) {
+export default function Login({setLoggedIn, setCurrUser, host, currUser}) {
     const [username, setUsername] = useState<string>("");
     const [password, setPassword] = useState<string>("");
     const [error, setError] = useState("");
@@ -34,6 +34,7 @@ export default function Login({setLoggedIn, setCurrUser, host}) {
             const payload = decodeJwt(data.token)
 
             setCurrUser(payload.sub || "unknown")
+            console.log(currUser);
 
             alert("Login sucessfull!");
             

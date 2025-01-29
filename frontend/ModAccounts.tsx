@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate, useLocation } from "react-router-dom";
 
-export default function ModAccounts({currUser, host, setLoggedIn, setCurrUser}) {
+export default function ModAccounts({currUser, host, setLoggedIn, setCurrUser, logout}) {
   const navigate = useNavigate();
   const location = useLocation();
   const [isAdmin, setIsAdmin] = useState(false);
@@ -40,41 +40,34 @@ export default function ModAccounts({currUser, host, setLoggedIn, setCurrUser}) 
     checkAdmin();
   }, [host, currUser]);
 
-  const logOut = async (event) => {
-    event.preventDefault();
+  
 
-    try {
-      console.log(currUser);
-      const response = await fetch("http://" + host + "/logout", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          username: currUser,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to log out");
+  const handlePasswordChange = (passChanger) => {
+    navigate("/setpassword", {
+      state: {
+        username: passChanger,
+        isAdmin: isAdmin,
       }
-
-
-      localStorage.removeItem("token");
-
-      alert("Logout sucessfull!");
-
-      setLoggedIn(false);
-      setCurrUser("");
-    } catch (error) {
-      console.error("Error during login: ", error);
-    }
-    setLoggedIn(false);
-    navigate("/");
+    });
   };
+
+ const logOutToRoot = async (event) => {
+    console.log("logout function:", logout);
+    console.log("logging out ");
+    await logout(event);
+    console.log("should be logged out");
+    navigate("/map");
+  }
+
+
   return (
     <div>
-      <button onClick={logOut}>Logout</button>
+      <button onClick={logOutToRoot}>Logout</button>
+
+      <div>
+        <h3>Reset your password</h3>
+        <a className='nav-button' onClick={() => handlePasswordChange(currUser)}>Reset Password</a>
+      </div>
       {error && <p>Error: {error}</p>}
       {isAdmin && <div className='all-users-div'>
         <h3>All users</h3>

@@ -112,15 +112,17 @@ pub fn update_password(
     old_password: &str,
     new_password: &str,
 ) -> Result<bool> {
-    let mut auth: bool = true;
-    if operator_uname != uname {
-        auth = false;
-    }
-    if !conn
+    let mut auth: bool = false;
+    
+    if conn
         .prepare("SELECT is_admin FROM users WHERE username = ?1")?
         .query_row(params![operator_uname], |row| row.get(0))?
     {
-        auth = false;
+        auth = true;
+    }
+
+    if operator_uname == uname {
+        auth = true;
     }
 
     let newP = hash(new_password, DEFAULT_COST).ok();
@@ -133,6 +135,8 @@ pub fn update_password(
         Ok(is_valid) => {
             if !is_valid {
                 auth = false;
+            }else{
+                auth = true;
             }
         }
 

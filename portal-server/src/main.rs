@@ -3,7 +3,7 @@ extern crate rocket;
 use bcrypt::{hash, verify, DEFAULT_COST};
 use chrono::Utc;
 use db::{
-    delete_user, get_all_users, initialize_database, new_user, set_token, verify_password, is_admin, User,
+    delete_user, get_all_users, initialize_database, is_admin, new_user, set_token, update_password, verify_password, User
 };
 use jsonwebtoken::{encode, EncodingKey, Header};
 use rocket::fs::NamedFile;
@@ -71,6 +71,16 @@ struct LogoutData {
 struct AdminCheckResponse {
     is_admin: bool,
 }
+
+#[derive(Deserialize)]
+struct PasswordResetdata {
+    operator: String,
+    username: String,
+    oldPassword: String,
+    newPassword: String,
+}
+
+
 
 /// Secret key for JWT
 const SECRET_KEY: &[u8] = b"yowzabazinga";
@@ -202,6 +212,26 @@ async fn admin_check(
     }
 }
 
+#[post("/resetpassword", data = "<user_data>")]
+async fn reset_password(
+    user_data: Json<PasswordResetdata>,
+    conn: &State<Mutex<rusqlite::Connection>>,
+) -> Status {
+    let reset_password_data = user_data.into_inner();
+    let conn = conn.lock().unwrap();
+
+    match update_password(&conn, &reset_password_data.operator, &reset_password_data.username, &reset_password_data.oldPassword, &reset_password_data.newPassword){
+        Ok(success) => {
+            if success {
+                Status::Ok
+            } else {
+                Status::Unauthorized
+            }
+        }
+        Err(_) => Status::InternalServerError,
+    }
+}
+
 #[get("/")]
 async fn index() -> Option<NamedFile> {
     NamedFile::open(Path::new("public/index.html")).await.ok() // Serve `index.html` directly
@@ -212,6 +242,6 @@ fn rocket() -> _ {
     let conn = initialize_database("users.db").expect("Failed to initialize database");
     rocket::build()
         .manage(Mutex::new(conn))
-        .mount("/", routes![index, login, logout, all_users, admin_check]) // Route for `/`
+        .mount("/", routes![index, login, logout, all_users, admin_check, reset_password]) // Route for `/`
         .mount("/public", FileServer::from(relative!("public"))) // Serve other static files
 }

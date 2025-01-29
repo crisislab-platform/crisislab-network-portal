@@ -31,7 +31,6 @@ export default function ChangePassword({logout, host, currUser}) {
         throw new Error("Failed to reset password");
     }
   
-    const data = await response.json();
   
     alert("password reset sucessfull!");
     if (isAdmin) {

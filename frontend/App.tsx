@@ -50,7 +50,7 @@ const App: React.FC = () => {
   return (
     <div className='measure-body center-body'>
     <Router>
-      <Header loggedIn={loggedIn} setLoggedIn={setLoggedIn} currUser={currUser} setCurrUser={setCurrUser} host={host}/> 
+      <Header loggedIn={loggedIn} setLoggedIn={setLoggedIn} currUser={currUser} setCurrUser={setCurrUser} host={host} logout={logout}/> 
       <Routes>
         <Route path="/table" element={<Table />} />
         <Route path="/map" element={<Map />} />

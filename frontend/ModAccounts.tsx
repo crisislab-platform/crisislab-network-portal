@@ -73,7 +73,7 @@ export default function ModAccounts({currUser, host, setLoggedIn, setCurrUser, l
         <h3>All users</h3>
         <ul>
           {users.map((user) => (
-            <li key={user.id} className='users-li'>Username: {user.username}, Is an Admin?: {user.is_admin ? "YES" : "NO"}</li>
+            <li key={user.id} className='nav-button'>Username: {user.username}, Is an Admin?: {user.is_admin ? "YES" : "NO"}</li>
           ))}
         </ul>
       </div> 

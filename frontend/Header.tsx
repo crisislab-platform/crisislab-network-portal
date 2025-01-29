@@ -1,7 +1,7 @@
 import React from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
-export default function Header({ loggedIn, setLoggedIn, currUser, setCurrUser, host}) {
+export default function Header({ loggedIn, setLoggedIn, currUser, setCurrUser, host, logout}) {
   const navigate = useNavigate();
   const location = useLocation();
   const goToTable = () => {
@@ -13,37 +13,14 @@ export default function Header({ loggedIn, setLoggedIn, currUser, setCurrUser, h
   const goToAccounts = () => {
     navigate("/accounts");
   };
-  const logOut = async (event) => {
-    event.preventDefault();
+  const logOutToRoot = async (event) => {
+    console.log("logout function:", logout);
+    console.log("logging out ");
+    await logout(event);
+    console.log("should be logged out");
+    navigate("/map");
+  }
 
-    try {
-      const response = await fetch("http://" + host + "/logout", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          username: currUser,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to log out");
-      }
-
-
-      localStorage.removeItem("token");
-
-      alert("Logout sucessfull!");
-
-      setLoggedIn(false);
-      setCurrUser("");
-    } catch (error) {
-      console.error("Error during login: ", error);
-    }
-    setLoggedIn(false);
-    navigate("/");
-  };
   return (
     <div className="header-div">
       <div className="title-format">
@@ -71,6 +48,7 @@ export default function Header({ loggedIn, setLoggedIn, currUser, setCurrUser, h
         >
           {loggedIn ? "Account" : "Login"}
         </a>
+        {loggedIn && <a className="nav-button" onClick={logOutToRoot}>Logout</a>}
       </div>
     </div>
   );

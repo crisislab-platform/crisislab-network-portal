@@ -17,8 +17,8 @@ body {
     padding: .5rem 1rem .25rem;
     color: #eee;
     background: #555;
-    border:#fff;
-    box-shadow: 4px 4px #666;
+    border: 1px solid #000;
+    box-shadow: 4px 4px #333;
 }
 
 html {
@@ -29,11 +29,10 @@ html {
     flex: 1;
     background: #888;
     color: #eee;
-    border: #000;
-    box-shadow: 2px 2px #999;
+    border: 1px solid #000;
+    box-shadow: 2px 2px #666;
     height: 2.5rem; 
     margin-top: 0.5rem;
-    margin-right: 0.5rem;
     display: flex; 
     align-items: center;
     justify-content: center;
@@ -53,6 +52,10 @@ html {
 
 .nav-button.active{
     background: #458588;
+}
+
+.nav-button:not(:last-child) {
+    margin-right: 0.5rem;
 }
 
 .center{

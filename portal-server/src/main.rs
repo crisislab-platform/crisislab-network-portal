@@ -21,7 +21,8 @@ mod db;
 /// JWT Claims structure
 #[derive(Debug, Serialize, Deserialize)]
 struct Claims {
-    sub: String, // Subject (username)
+    sub: String, // Subject (username)a
+    is_admin: bool,
     exp: usize,  // Expiration time (as a UNIX timestamp)
 }
 
@@ -99,9 +100,13 @@ async fn login(
         .map_err(|_| status::Unauthorized("Database query failed".to_string()))?;
 
     if verify_result {
+
+        let admin_perms = is_admin(&conn, &login_data.username).unwrap_or(false);
+
         // Create JWT claims
         let claims = Claims {
             sub: login_data.username.clone(),
+            is_admin: admin_perms,
             exp: chrono::Utc::now().timestamp() as usize + 3600,
         };
 
@@ -200,17 +205,7 @@ async fn logout(
     }
 }
 
-#[get("/admincheck/<username>")]
-async fn admin_check(
-    username: &str,
-    conn: &State<Mutex<rusqlite::Connection>>,
-) -> Result<Json<AdminCheckResponse>, Status> {
-    let conn = conn.lock().unwrap();
-    match is_admin(&conn, username) {
-        Ok(is_admin) => Ok(Json(AdminCheckResponse { is_admin })),
-        Err(_) => Err(Status::InternalServerError),
-    }
-}
+
 
 #[post("/resetpassword", data = "<user_data>")]
 async fn reset_password(
@@ -242,6 +237,6 @@ fn rocket() -> _ {
     let conn = initialize_database("users.db").expect("Failed to initialize database");
     rocket::build()
         .manage(Mutex::new(conn))
-        .mount("/", routes![index, login, logout, all_users, admin_check, reset_password, add_user]) // Route for `/`
+        .mount("/", routes![index, login, logout, all_users, reset_password, add_user]) // Route for `/`
         .mount("/public", FileServer::from(relative!("public"))) // Serve other static files
 }

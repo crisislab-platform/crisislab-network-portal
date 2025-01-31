@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate, useLocation } from "react-router-dom";
 
-export default function ModAccounts({currUser, host, setLoggedIn, setCurrUser, logout}) {
+export default function ModAccounts({currUser, host, setLoggedIn, setCurrUser, logout, isAdmin}) {
   const navigate = useNavigate();
   const location = useLocation();
-  const [isAdmin, setIsAdmin] = useState(false);
   const [users, setUsers] = useState([]);
   const [error, setError] = useState(null);
 
@@ -23,22 +22,7 @@ export default function ModAccounts({currUser, host, setLoggedIn, setCurrUser, l
     fetchUsers();
   }, [host])
 
-  useEffect(() => {
-    const checkAdmin = async () => {
-      try {
-        const response = await fetch("http://" + host + "/admincheck/" + currUser);
-        if (!response.ok) {
-          throw new Error("failed to check admin status: ");
-        }
-        const data = await response.json();
-        setIsAdmin(data.is_admin);
-      } catch (err) {
-        console.error("Error checking the admin status of the user:", err );
-        setError(err.message);
-      }
-    };
-    checkAdmin();
-  }, [host, currUser]);
+  
 
   
 

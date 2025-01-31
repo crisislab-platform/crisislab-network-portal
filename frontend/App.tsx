@@ -10,7 +10,7 @@ const App: React.FC = () => {
   const [loggedIn, setLoggedIn] = useState<boolean>(false);
   const [currUser, setCurrUser] = useState<string>("");
   const [host, setHost] = useState<string | null>(null);
-
+  const [isAdmin, setIsAdmin] = useState<boolean>(false);
   useEffect(() => {
     setHost(location.host)
   }, []);
@@ -55,7 +55,7 @@ const App: React.FC = () => {
       <Routes>
         <Route path="/table" element={<Table />} />
         <Route path="/map" element={<Map />} />
-        <Route path="/accounts" element={<Accounts loggedIn={loggedIn} setLoggedIn={setLoggedIn} setCurrUser={setCurrUser} host={host} currUser={currUser} logout={logout}/>}/>
+        <Route path="/accounts" element={<Accounts loggedIn={loggedIn} setLoggedIn={setLoggedIn} setCurrUser={setCurrUser} host={host} currUser={currUser} logout={logout} isAdmin={isAdmin} setIsAdmin={setIsAdmin}/>}/>
         <Route path="/setpassword" element={<ChangePassword logout={logout} host={host} currUser={currUser}/>} />
         <Route path="/adduser" element={<AddUser currUser={currUser} host={host}/>} />
       </Routes>

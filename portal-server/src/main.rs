@@ -242,6 +242,6 @@ fn rocket() -> _ {
     let conn = initialize_database("users.db").expect("Failed to initialize database");
     rocket::build()
         .manage(Mutex::new(conn))
-        .mount("/", routes![index, login, logout, all_users, admin_check, reset_password]) // Route for `/`
+        .mount("/", routes![index, login, logout, all_users, admin_check, reset_password, add_user]) // Route for `/`
         .mount("/public", FileServer::from(relative!("public"))) // Serve other static files
 }

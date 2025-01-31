@@ -51,29 +51,32 @@ export default function ModAccounts({currUser, host, setLoggedIn, setCurrUser, l
     });
   };
 
- const logOutToRoot = async (event) => {
+  const logOutToRoot = async (event) => {
     console.log("logout function:", logout);
     console.log("logging out ");
     await logout(event);
     console.log("should be logged out");
     navigate("/map");
   }
+  
+  const goToAddUser = () => {
+    navigate("/adduser");
+  }
 
 
   return (
     <div>
-      <button onClick={logOutToRoot}>Logout</button>
-
-      <div>
-        <h3>Reset your password</h3>
+      <div className='center margin-below1'>
+        {isAdmin && <a className='nav-button' onClick={goToAddUser}>Add a new user</a>} 
         <a className='nav-button' onClick={() => handlePasswordChange(currUser)}>Reset Password</a>
       </div>
+      <hr className='hr-dotted' />
       {error && <p>Error: {error}</p>}
-      {isAdmin && <div className='all-users-div'>
+      {isAdmin && <div>
         <h3>All users</h3>
         <ul>
           {users.map((user) => (
-            <li key={user.id} className='nav-button'>Username: {user.username}, Is an Admin?: {user.is_admin ? "YES" : "NO"}</li>
+            <li key={user.id} className='nav-button'>Username: {user.username}, Is an Admin?: {user.is_admin ? "YES" : "NO"}&nbsp;&nbsp;&nbsp;&nbsp;<a className='list-button' onClick={() => handlePasswordChange(user.username)}>Reset {user.username}'s Password</a></li>
           ))}
         </ul>
       </div> 

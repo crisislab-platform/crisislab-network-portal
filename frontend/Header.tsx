@@ -50,6 +50,7 @@ export default function Header({ loggedIn, setLoggedIn, currUser, setCurrUser, h
         </a>
         {loggedIn && <a className="nav-button" onClick={logOutToRoot}>Logout</a>}
       </div>
+      <hr className="hr-solid"></hr>
     </div>
   );
 }

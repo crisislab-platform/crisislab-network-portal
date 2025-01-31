@@ -5,6 +5,7 @@ import Table from "./Table"
 import Header from "./Header"
 import Accounts from "./Accounts"
 import ChangePassword from './ChangePassword'
+import AddUser from './AddUser'
 const App: React.FC = () => {
   const [loggedIn, setLoggedIn] = useState<boolean>(false);
   const [currUser, setCurrUser] = useState<string>("");
@@ -56,6 +57,7 @@ const App: React.FC = () => {
         <Route path="/map" element={<Map />} />
         <Route path="/accounts" element={<Accounts loggedIn={loggedIn} setLoggedIn={setLoggedIn} setCurrUser={setCurrUser} host={host} currUser={currUser} logout={logout}/>}/>
         <Route path="/setpassword" element={<ChangePassword logout={logout} host={host} currUser={currUser}/>} />
+        <Route path="/adduser" element={<AddUser currUser={currUser} host={host}/>} />
       </Routes>
     </Router>
     </div>

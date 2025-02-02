@@ -5,8 +5,8 @@ export default function ChangePassword({logout, host, currUser}) {
   const location = useLocation();
   const navigate = useNavigate();
   const { username, isAdmin} = location.state || {};
-  const [oldPassword, setOldPassword] = useState<string>();
-  const [newPassword, setNewPassword] = useState<string>();
+  const [oldPassword, setOldPassword] = useState<string>("");
+  const [newPassword, setNewPassword] = useState<string>("");
   const [error, setError] = useState("");      
 
   
@@ -49,10 +49,10 @@ return (
     <div className='form-div'>
         <form onSubmit={handleSubmit}>
             {error && <p>{ error }</p>}
-            <div className='form-section-div'>
+            {!isAdmin && <div className='form-section-div'>
                 <label htmlFor='oldpassword'>Old Password: </label>
                 <input id='oldPassword' type='password' value={oldPassword} onChange={(e) => setOldPassword(e.target.value)} required />
-            </div>
+            </div>}
             <div className='form-section-div'>
                 <label htmlFor='newpassword'>New Password: </label>
                 <input id='newPassword' type='password' value={newPassword} onChange={(e) => setNewPassword(e.target.value)} required />

@@ -119,31 +119,29 @@ pub fn update_password(
         .query_row(params![operator_uname], |row| row.get(0))?
     {
         auth = true;
-    }
-
-    if operator_uname == uname {
-        auth = true;
-    }
-
-    let newP = hash(new_password, DEFAULT_COST).ok();
-
-    let stored_password: String = conn
+    } else {
+        if operator_uname == uname {
+            auth = true;
+        }
+        let stored_password: String = conn
         .prepare("SELECT password FROM users WHERE username = ?1")?
         .query_row(params![uname], |row| row.get(0))?;
 
-    match verify(old_password, &stored_password) {
-        Ok(is_valid) => {
-            if !is_valid {
-                auth = false;
-            }else{
-                auth = true;
+        match verify(old_password, &stored_password) {
+            Ok(is_valid) => {
+                if !is_valid {
+                    auth = false;
+                }else{
+                    auth = true;
+                }
             }
-        }
 
-        Err(_) => return Ok(false),
-    }
+            Err(_) => return Ok(false),
+        }
+    }      
 
     if auth {
+        let newP = hash(new_password, DEFAULT_COST).ok();
         conn.execute(
             "UPDATE users SET password = ?1 WHERE username = ?2;",
             params![newP, uname],

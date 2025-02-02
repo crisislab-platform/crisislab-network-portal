@@ -22,6 +22,29 @@ export default function ModAccounts({currUser, host, setLoggedIn, setCurrUser, l
     fetchUsers();
   }, [host])
 
+  const handleRemove = async (user) => {
+        try {
+            const response = await fetch("http://" + host + "/remove_user", {
+                method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    remover: currUser,
+                    username: user,
+                }),
+            });
+
+            if (!response.ok) {
+                throw new Error("Failed to remove user");
+            }
+            navigate("/accounts")
+        } catch (error) {
+            console.error("Error during user removal: ", error);
+            setError("You don't have permissions to delete the person");
+        }
+    }
+
   
 
   
@@ -60,7 +83,7 @@ export default function ModAccounts({currUser, host, setLoggedIn, setCurrUser, l
         <h3>All users</h3>
         <ul>
           {users.map((user) => (
-            <li key={user.id} className='nav-button'>Username: {user.username}, Is an Admin?: {user.is_admin ? "YES" : "NO"}&nbsp;&nbsp;&nbsp;&nbsp;<a className='list-button' onClick={() => handlePasswordChange(user.username)}>Reset {user.username}'s Password</a></li>
+            <li key={user.id} className='nav-button'>Username: {user.username}, Is an Admin?: {user.is_admin ? "YES" : "NO"}&nbsp;&nbsp;&nbsp;&nbsp;<a className='list-button' onClick={() => handlePasswordChange(user.username)}>Reset {user.username}'s Password</a>&nbsp;&nbsp;&nbsp;&nbsp;<a className='list-button' onClick={() => handleRemove(user.username)}>Remove {user.username}</a></li>
           ))}
         </ul>
       </div> 

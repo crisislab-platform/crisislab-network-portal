@@ -46,18 +46,18 @@ export default function ChangePassword({logout, host, currUser}) {
 };
   
 return (
-    <div>
+    <div className='form-div'>
         <form onSubmit={handleSubmit}>
             {error && <p>{ error }</p>}
-            <div>
+            <div className='form-section-div'>
                 <label htmlFor='oldpassword'>Old Password: </label>
                 <input id='oldPassword' type='password' value={oldPassword} onChange={(e) => setOldPassword(e.target.value)} required />
             </div>
-            <div>
+            <div className='form-section-div'>
                 <label htmlFor='newpassword'>New Password: </label>
                 <input id='newPassword' type='password' value={newPassword} onChange={(e) => setNewPassword(e.target.value)} required />
             </div>
-            <button type='submit'>Submit</button>
+            <button className='form-submit-button' type='submit'>Submit</button>
         </form>
     </div>
 );

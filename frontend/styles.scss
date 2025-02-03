@@ -96,20 +96,23 @@ html {
     vertical-align: center;
     padding: 0.5rem 2rem;
 
-    label {
-        font-size: 1rem;
-    }
+}
 
-    input {
-        font-size: 1rem;
-        background: #555;
-        color: #eee;
-        border-top: none;
-        border-bottom: 1px solid #000;
-        border-left: none;
-        border-right: none;
-        box-shadow: none;
-    }
+.form-input {
+    font-size: 1rem;
+    background: #555;
+    background-color: #555;
+    color: #eee;
+    border-top: none;
+    border-bottom: 1px solid #000;
+    border-left: none;
+    border-right: none;
+    box-shadow: none;
+    outline: none;
+}
+
+.form-label {
+    font-size: 1rem;
 }
 
 .form-submit-button {

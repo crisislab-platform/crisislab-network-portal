@@ -50,12 +50,12 @@ return (
         <form onSubmit={handleSubmit}>
             {error && <p>{ error }</p>}
             {!isAdmin && <div className='form-section-div'>
-                <label htmlFor='oldpassword'>Old Password: </label>
-                <input id='oldPassword' type='password' value={oldPassword} onChange={(e) => setOldPassword(e.target.value)} required />
+                <label className='form-label' htmlFor='oldpassword'>Old Password: </label>
+                <input className='form-input' id='oldPassword' type='password' value={oldPassword} onChange={(e) => setOldPassword(e.target.value)} required />
             </div>}
             <div className='form-section-div'>
-                <label htmlFor='newpassword'>New Password: </label>
-                <input id='newPassword' type='password' value={newPassword} onChange={(e) => setNewPassword(e.target.value)} required />
+                <label className='form-label' htmlFor='newpassword'>New Password: </label>
+                <input className='form-input' id='newPassword' type='password' value={newPassword} onChange={(e) => setNewPassword(e.target.value)} required />
             </div>
             <button className='form-submit-button' type='submit'>Submit</button>
         </form>

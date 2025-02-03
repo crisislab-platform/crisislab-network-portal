@@ -51,12 +51,12 @@ export default function Login({setLoggedIn, setCurrUser, host, currUser, setIsAd
             <form onSubmit={handleSubmit}>
                 {error && <p>{ error }</p>}
                 <div className='form-section-div'>
-                    <label htmlFor='username'>Username: </label>
-                    <input id='username' type='text' value={username} onChange={(e) => setUsername(e.target.value)} required />
+                    <label className='form-label' htmlFor='username'>Username: </label>
+                    <input className='form-input' id='username' type='text' value={username} onChange={(e) => setUsername(e.target.value)} required />
                 </div>
                 <div className='form-section-div'>
-                    <label htmlFor='password'>Password: </label>
-                    <input id='password' type='password' value={password} onChange={(e) => setPassword(e.target.value)} required />     
+                    <label className='form-label' htmlFor='password'>Password: </label>
+                    <input className='form-input' id='password' type='password' value={password} onChange={(e) => setPassword(e.target.value)} required />     
                 </div>
                 <button className='form-submit-button' type='submit'>Submit</button>
             </form>

@@ -38,22 +38,22 @@ export default function AddUser({ currUser, host }) {
     };
 
     return (
-        <div>
+        <div className='form-div'>
             <form onSubmit={handleSubmit}>
                 {error && <p>{ error }</p>}
-                <div>
-                    <label htmlFor='username'>Username: </label>
-                    <input id='username' type='text' value={username} onChange={(e) => setUsername(e.target.value)} required />
+                <div className='form-section-div'>
+                    <label className='form-label' htmlFor='username'>Username: </label>
+                    <input className='form-input' id='username' type='text' value={username} onChange={(e) => setUsername(e.target.value)} required />
                 </div>
-                <div>
-                    <label htmlFor='password'>Password: </label>
-                    <input id='password' type='password' value={password} onChange={(e) => setPassword(e.target.value)} required />     
+                <div className='form-section-div'>
+                    <label className='form-label' htmlFor='password'>Password: </label>
+                    <input className='form-input' id='password' type='password' value={password} onChange={(e) => setPassword(e.target.value)} required />     
                 </div>
-                <div>
-                    <label htmlFor='admin'>Is Admin: </label>
-                    <input id='admin' type='checkbox' checked={admin} onChange={(e) => setAdmin(e.target.checked)} />
+                <div className='form-section-div'>
+                    <label className='form-label' htmlFor='admin'>Is Admin: </label>
+                    <input className='form-input' id='admin' type='checkbox' checked={admin} onChange={(e) => setAdmin(e.target.checked)} />
                 </div>
-                <button type='submit'>Submit</button>
+                <button className='form-submit-button' type='submit'>Submit</button>
             </form>
         </div>
     );

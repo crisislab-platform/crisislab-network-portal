@@ -1,0 +1,1 @@
+/home/mp/crisislab-lora-network-portal/authentication-server/target/debug/authentication-server: /home/mp/crisislab-lora-network-portal/authentication-server/src/db.rs /home/mp/crisislab-lora-network-portal/authentication-server/src/main.rs

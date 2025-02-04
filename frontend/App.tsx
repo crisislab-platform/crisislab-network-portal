@@ -9,11 +9,12 @@ import AddUser from './AddUser'
 const App: React.FC = () => {
   const [loggedIn, setLoggedIn] = useState<boolean>(false);
   const [currUser, setCurrUser] = useState<string>("");
-  const [host, setHost] = useState<string | null>(null);
+  // const [host, setHost] = useState<string | null>(null);
+  const host = "localhost:8001";
   const [isAdmin, setIsAdmin] = useState<boolean>(false);
-  useEffect(() => {
-    setHost(location.host)
-  }, []);
+  // useEffect(() => {
+  //   setHost(location.host)
+  // }, []);
 
   const logout = async (event) => {
     event.preventDefault();

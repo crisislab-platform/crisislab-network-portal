@@ -10,7 +10,7 @@ const App: React.FC = () => {
   const [loggedIn, setLoggedIn] = useState<boolean>(false);
   const [currUser, setCurrUser] = useState<string>("");
   // const [host, setHost] = useState<string | null>(null);
-  const host = "localhost:8001";
+  const host = "127.0.0.1:8001";
   const [isAdmin, setIsAdmin] = useState<boolean>(false);
   // useEffect(() => {
   //   setHost(location.host)

@@ -25,3 +25,5 @@ go.work.sum
 .env
 
 portal-server/target/
+authentications-server/target/
+node_modules/

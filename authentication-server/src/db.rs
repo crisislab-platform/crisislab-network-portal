@@ -121,7 +121,7 @@ pub fn get_token(conn: &Connection, uname: &str) -> Result<Option<String>> {
 
 pub fn delete_user(conn: &Connection, operator_token: &str, uname: &str) -> Result<bool> {
     let op_data = verify_token(conn, operator_token)?;
-    if op_data.is_admin {
+    if !op_data.is_admin {
         Ok(false)
     } else {
         conn.execute("DELETE FROM users WHERE username = ?1", params![uname])?;

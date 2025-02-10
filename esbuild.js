@@ -8,6 +8,10 @@ esbuild
     bundle: true,
     minify: true,
     plugins: [sassPlugin()],
+    loader: {
+      ".png": "file",
+      ".css": "file",
+    },
   })
   .then(() => console.log("⚡ Build complete! ⚡"))
   .catch(() => process.exit(1));

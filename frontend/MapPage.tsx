@@ -9,26 +9,62 @@ import L from "leaflet";
 // Type Definitions (based on your protobuf definitions)
 // -------------------------------------------------------------------
 
-export default function MapPage() {
+export default function MapPage({ nodes }) {
+  const nodeList = Array.from(nodes.values());
+
   // Maintain a map of nodes keyed by node number.
-  const position = [51.505, -0.09];
+  const defaultCenter: [number, number] = [51.505, -0.09];
+  let center: [number, number] = defaultCenter;
+  if (nodeList.length > 0) {
+    const first = nodeList[0];
+    if (
+      first.position.latitude_i !== undefined &&
+      first.position.longitude_i !== undefined
+    ) {
+      center = [
+        first.position.latitude_i * 1e-7,
+        first.position.longitude_i * 1e-7,
+      ];
+    }
+  }
 
   return (
     <div className="map-wrapper">
-      <MapContainer
-        center={position}
-        zoom={13}
-        style={{ width: "20rem", height: "20rem" }}
-      >
+      <MapContainer center={center} zoom={13} style={{ height: "60rem" }}>
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
-        <Marker position={position}>
-          <Popup>
-            A pretty CSS3 popup. <br /> Easily customizable.
-          </Popup>
-        </Marker>
+
+        {nodeList.map((node) => {
+          if (
+            node.position.latitude_i === undefined ||
+            node.position.longitude_i === undefined
+          ) {
+            return null;
+          }
+
+          const lat = node.position.latitude_i * 1e-7;
+          const lng = node.position.longitude_i * 1e-7;
+          return (
+            <Marker key={node.num} position={[lat, lng]}>
+              <Popup>
+                <div>
+                  <p>
+                    <strong>Name: </strong> {node.user.id}
+                  </p>
+                  <p>
+                    <strong>Long Name: </strong> {node.user.long_name}
+                  </p>
+                  <p>
+                    <strong>Last Heard: </strong>{" "}
+                    {new Date(node.last_heard * 1000).toLocaleString()}
+                  </p>
+                </div>
+              </Popup>
+            </Marker>
+          );
+        })}
       </MapContainer>
     </div>
   );

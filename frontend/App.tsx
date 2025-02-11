@@ -145,7 +145,7 @@ const App: React.FC = () => {
         />
         <Routes>
           <Route path="/table" element={<Table nodes={nodes} />} />
-          <Route path="/map" element={<MapPage />} />
+          <Route path="/map" element={<MapPage nodes={nodes} />} />
           <Route
             path="/accounts"
             element={

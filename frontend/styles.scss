@@ -187,14 +187,15 @@ html {
 }
 
 .map-wrapper {
-    width: 40rem;
     height: 60rem;
     overflow: hidden;
-    margin: 0 auto;
-    border: 1px solid #fff;
+    border: 1px solid #000;
     position: relative;
-    margin: 0rem 0rem;
-    padding: 0rem 0rem;
+    margin: 0.25rem 0.25%;
+    padding: 0.25rem 0.25rem;
     background: #888;
     box-shadow: 2px #666;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
 }

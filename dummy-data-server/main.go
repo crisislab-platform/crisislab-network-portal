@@ -72,7 +72,7 @@ func main() {
 
 // generateDummyNodeInfo creates a dummy NodeInfo structure with random data.
 func generateDummyNodeInfo() models.NodeInfo {
-	num := uint32(rand.Intn(1000))
+	num := uint32(rand.Intn(50))
 	user := models.User{
 		Id:         fmt.Sprintf("user_%d", num),
 		LongName:   "Long Name Example",
@@ -82,8 +82,9 @@ func generateDummyNodeInfo() models.NodeInfo {
 		Role:       models.CLIENT,
 		PublicKey:  []byte("dummy_public_key"),
 	}
-	lat := int32(123456789) // dummy latitude value (in scaled integer form)
-	lon := int32(987654321) // dummy longitude value
+	lat := int32(rand.Float64()*180e7 - 90e7)
+	lon := int32(rand.Float64()*360e7 - 180e7)
+
 	position := models.Position{
 		LatitudeI:             &lat,
 		LongitudeI:            &lon,

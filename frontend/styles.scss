@@ -83,6 +83,20 @@ html {
     padding-right: 0.5rem;
 }
 
+.form-div-h {
+    display: flex;
+    flex-direction: row;
+    background: #888;
+    color: #eee;
+    border: 1px solid #000;
+    height: 4rem;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+}
+
 .form-section-div {
     flex: auto;
     background: #555;
@@ -95,11 +109,30 @@ html {
     text-align: center;
     vertical-align: center;
     padding: 0.5rem 2rem;
+    margin-left: 0.25rem;
+    margin-right: 0.25rem;
+}
+
+.form-section-div-h {
+    display: flex;
+    background: #555;
+    color: #eee;
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 2px 2px #333;
+    border: 1px solid #000;
+    justify-content: center;
+    text-align: center;
+    vertical-align: center;
+    align-items: center;
+    padding: 0.5rem 2rem;
+    margin-left: 0.25rem;
+    margin-right: 0.25rem;
 }
 
 .form-input {
     font-size: 1rem;
-    background: #555;
+    background:  #555;
     background-color: #555;
     color: #eee;
     border-top: none;
@@ -120,6 +153,19 @@ html {
     box-shadow: 2px 2px #333;
     border: 1px solid #000;
     height: 2rem;
+    width: 6rem;
+}
+
+.mi {
+    display: inline-block;
+}
+
+.form-submit-button-search {
+    background: #555;
+    color: #eee;
+    box-shadow: 2px 2px #333;
+    border: 1px solid #000;
+    height: 2.5rem;
     width: 6rem;
 }
 

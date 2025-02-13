@@ -7,6 +7,7 @@ import Accounts from "./Accounts";
 import ChangePassword from "./ChangePassword";
 import AddUser from "./AddUser";
 import Search from "./Search";
+import NodePage from "./NodePage";
 
 // Define types for NodeInfo and related objects.
 type NodeInfo = {
@@ -172,6 +173,7 @@ const App: React.FC = () => {
             element={<AddUser currUser={currUser} host={host} />}
           />
           <Route path="/search" element={<Search nodes={nodes} />} />
+          <Route path="/nodepage" element={<NodePage nodes={nodes} />} />
         </Routes>
       </Router>
     </div>

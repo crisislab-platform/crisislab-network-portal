@@ -10,18 +10,20 @@ export default function NodePage({ nodes, isAdmin }) {
   console.log(nodedata);
 
   return (
-    <div>
-      <div className="center margin-below1">
+    <div className="nodepage">
+      <div className="left">
+        <p>NodeInfo</p>
         <AsciiTreeView data={nodedata} />
       </div>
-      <hr className="hr-dotted" />
-      {isAdmin && (
-        <div>
-          <h3>Send Commands</h3>
-
-          <a className="list-button">placeholder button</a>
-        </div>
-      )}
+      <div className="vr"></div>
+      <div className="right">
+        {isAdmin && (
+          <div>
+            <h3>Send Commands</h3>
+            <a className="list-button">placeholder button</a>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

@@ -173,7 +173,10 @@ const App: React.FC = () => {
             element={<AddUser currUser={currUser} host={host} />}
           />
           <Route path="/search" element={<Search nodes={nodes} />} />
-          <Route path="/nodepage" element={<NodePage nodes={nodes} />} />
+          <Route
+            path="/nodepage"
+            element={<NodePage nodes={nodes} isAdmin={isAdmin} />}
+          />
         </Routes>
       </Router>
     </div>

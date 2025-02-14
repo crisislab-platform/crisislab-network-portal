@@ -14,7 +14,7 @@
     margin-bottom: 1rem;
     margin-left: auto;
     margin-right: auto;
-    padding: 0.5rem 1rem 0.25rem;
+    padding: 1rem 1rem;
     color: #eee;
     background: #555;
     border: 1px solid #000;
@@ -67,6 +67,19 @@ html {
     padding-right: 0.5rem;
     line-height: normal;
     position: relative;
+}
+
+.table-div {
+    display: flex;
+    flex-direction: column;
+    background: #888;
+    color: #fff;
+    border: 1px solid #000;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    margin: 0.5rem 0rem;
+    padding: 0.5rem 0.5rem;
 }
 
 .form-div {

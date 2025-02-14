@@ -15,15 +15,15 @@ export default function NodePage({ nodes, isAdmin }) {
         <p>NodeInfo</p>
         <AsciiTreeView data={nodedata} />
       </div>
-      <div className="vr"></div>
-      <div className="right">
-        {isAdmin && (
+      {isAdmin && <div className="vr"></div>}
+      {isAdmin && (
+        <div className="right">
           <div>
-            <h3>Send Commands</h3>
+            <h3>Send Commands</h3>{" "}
             <a className="list-button">placeholder button</a>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }

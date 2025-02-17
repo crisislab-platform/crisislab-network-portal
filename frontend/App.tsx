@@ -10,6 +10,12 @@ import Search from "./Search";
 import NodePage from "./NodePage";
 
 // Define types for NodeInfo and related objects.
+type Route = {
+  to: number;
+  from: number;
+  rssi: number;
+}
+
 type NodeInfo = {
   num: number;
   user: User;
@@ -133,6 +139,41 @@ const App: React.FC = () => {
     };
   }, []);
 
+  const [routes, setRoutes] = useState<Map<string, Route>>(new Map());
+
+  const canonicalKey = (route: Route): string => {
+    const [a, b] =
+      route.from < route.to ? [route.from, route.to] : [route.to, route.from];
+    return `${a}-${b}`;
+  };
+
+  useEffect(() => {
+    const ws = new WebSocket("ws://127.0.0.1:8080/wsr");
+    ws.onmessage = (event) => {
+      try {
+        const incomingRoute: Route = JSON.parse(event.data);
+        // Generate the canonical key (order-independent)
+        const key = canonicalKey(incomingRoute);
+
+        setRoutes((prevRoutes) => {
+          // Create a new Map to update state immutably
+          const newRoutes = new Map(prevRoutes);
+          // This will add a new route or replace an existing one (even if it's in the opposite direction)
+          newRoutes.set(key, incomingRoute);
+          return newRoutes;
+        });
+      } catch (error) {
+        console.error("Error parsing Route:", error);
+      }
+    };
+    ws.onerror = (error) => {
+      console.error("WebSocket error:", error);
+    };
+    return () => {
+      ws.close();
+    };
+  }, []);
+
   return (
     <div className="measure-body center-body">
       <Router>
@@ -146,7 +187,7 @@ const App: React.FC = () => {
         />
         <Routes>
           <Route path="/table" element={<Table nodes={nodes} />} />
-          <Route path="/map" element={<MapPage nodes={nodes} />} />
+          <Route path="/map" element={<MapPage nodes={nodes} routes={routes}/>} />
           <Route
             path="/accounts"
             element={

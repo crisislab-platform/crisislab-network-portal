@@ -1,6 +1,6 @@
 // src/MapComponent.tsx
 import React, { useEffect, useState } from "react";
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup, Polyline } from "react-leaflet";
 import L from "leaflet";
 // We no longer import CSS or images via the bundler since CSS is loaded via CDN,
 // and images are referenced from the public folder.
@@ -9,11 +9,22 @@ import L from "leaflet";
 // Type Definitions (based on your protobuf definitions)
 // -------------------------------------------------------------------
 
-export default function MapPage({ nodes }) {
+export default function MapPage({ nodes, routes }) {
   const nodeList = Array.from(nodes.values());
+  const routesList = Array.from(routes.values());
 
   // Maintain a map of nodes keyed by node number.
   const defaultCenter: [number, number] = [51.505, -0.09];
+
+  const getPosition = (nodenum: number): [number, number] | null => {
+    const node = nodes.get(nodenum);
+    if (!node || node.position.latitude_i === undefined || node.position.longitude_i === undefined) {
+      return null;
+    }
+
+    return [node.position.latitude_i * 1e-7, node.position.longitude_i * 1e-7];
+  };
+
   let center: [number, number] = defaultCenter;
   if (nodeList.length > 0) {
     const first = nodeList[0];
@@ -63,6 +74,23 @@ export default function MapPage({ nodes }) {
                 </div>
               </Popup>
             </Marker>
+          );
+        })}
+
+        {routesList.map((route) => {
+          const fromPos =  getPosition(route.from);
+          const toPos = getPosition(route.to);
+          if(!fromPos || !toPos) return null;
+
+          const key =
+          route.from < route.to
+            ? `${route.from}-${route.to}`
+            : `${route.to}-${route.from}`;
+
+          return (
+            <Polyline key={key} positions={[fromPos, toPos]} color="blue">
+              <Popup>RSSI: {route.rssi} </Popup>
+            </Polyline>
           );
         })}
       </MapContainer>

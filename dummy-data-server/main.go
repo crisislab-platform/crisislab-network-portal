@@ -52,6 +52,38 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	}
+
+}
+
+// wsHandler upgrades the HTTP connection to a websocket and periodically sends dummy NodeInfo JSON.
+func wsHandlerRoutes(w http.ResponseWriter, r *http.Request) {
+	conn, err := upgrader.Upgrade(w, r, nil)
+	if err != nil {
+		log.Println("Upgrade error:", err)
+		return
+	}
+	defer conn.Close()
+
+	// Send a new dummy NodeInfo every second.
+	ticker := time.NewTicker(1 * time.Second)
+	defer ticker.Stop()
+
+	for {
+		select {
+		case t := <-ticker.C:
+			route := generateDummyRoute()
+			fmt.Println(t)
+			data, err := json.Marshal(route)
+			if err != nil {
+				log.Println("JSON marshal error:", err)
+				return
+			}
+			if err := conn.WriteMessage(websocket.TextMessage, data); err != nil {
+				log.Println("Write message error:", err)
+				return
+			}
+		}
+	}
 }
 
 func main() {
@@ -60,6 +92,8 @@ func main() {
 
 	// Route for websocket connection.
 	http.HandleFunc("/ws", wsHandler)
+
+	http.HandleFunc("/wsr", wsHandlerRoutes)
 
 	// Serve static files (including index.html) from the "./static" directory.
 	http.Handle("/", http.FileServer(http.Dir("./static")))
@@ -120,6 +154,14 @@ func generateDummyNodeInfo() models.NodeInfo {
 		ViaMqtt:       false,
 		HopsAway:      nil,
 		IsFavorite:    false,
+	}
+}
+
+func generateDummyRoute() models.Route {
+	return models.Route{
+		To:   uint32(rand.Intn(50)),
+		From: uint32(rand.Intn(50)),
+		RSSI: uint32(rand.Intn(200)),
 	}
 }
 

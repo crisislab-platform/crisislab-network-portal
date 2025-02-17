@@ -4,7 +4,7 @@ export default function Table({ nodes }) {
   const nodeList = Array.from(nodes.values());
 
   return (
-    <div>
+    <div className="table-div">
       <table style={{ borderCollapse: "collapse", width: "100%" }}>
         <thead>
           <tr>

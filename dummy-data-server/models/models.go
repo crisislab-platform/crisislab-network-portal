@@ -1,6 +1,12 @@
 // models/models.go
 package models
 
+type Route struct {
+	To   uint32 `json:"to"`
+	From uint32 `json:"from"`
+	RSSI uint32 `jsonn:"rssi"`
+}
+
 // NodeInfo represents the NodeInfo protobuf message.
 type NodeInfo struct {
 	Num           uint32        `json:"num"`

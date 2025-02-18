@@ -4,7 +4,7 @@ package models
 type Route struct {
 	To   uint32 `json:"to"`
 	From uint32 `json:"from"`
-	RSSI uint32 `jsonn:"rssi"`
+	RSSI uint32 `json:"rssi"`
 }
 
 // NodeInfo represents the NodeInfo protobuf message.

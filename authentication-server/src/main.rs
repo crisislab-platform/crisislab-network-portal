@@ -19,6 +19,11 @@ use rocket::State;
 use std::arch::asm;
 use std::path::Path;
 use std::sync::Mutex;
+use rocket_cors::{
+    AllowedHeaders, AllowedMethods, AllowedOrigins, CorsOptions
+};
+use rocket::fairing::AdHoc;
+
 
 mod db;
 mod models;
@@ -228,8 +233,31 @@ async fn reset_password(
 
 #[launch]
 fn rocket() -> _ {
+    let allowed_origins = AllowedOrigins::all();
+
+    let allowed_methods = vec!["GET", "POST", "DELETE", "OPTIONS"]
+        .into_iter()
+        .map(|s| s.parse().unwrap())
+        .collect::<AllowedMethods>();
+
+    let cors_options = CorsOptions {
+        allowed_origins,
+        allowed_methods,
+        allowed_headers: AllowedHeaders::some(&[
+            "Authorization",
+            "Accept",
+            "Content-Type",
+        ]),
+        allow_credentials: true,
+        ..Default::default()
+    };
+
+    let cors = cors_options.to_cors().expect("Could not build CORS fairing");
+
+
     let conn = initialize_database("users.db").expect("Failed to initialize database");
     rocket::build()
+        .attach(cors)
         .manage(Mutex::new(conn))
         .configure(rocket::Config::figment().merge(("port", 8001)))
         .mount("/", routes![login, logout, all_users, reset_password, add_user, remove_user]) // Route for `/`

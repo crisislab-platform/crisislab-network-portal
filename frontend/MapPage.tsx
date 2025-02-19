@@ -2,6 +2,8 @@
 import React, { useEffect, useState } from "react";
 import { MapContainer, TileLayer, Marker, Popup, Polyline } from "react-leaflet";
 import L from "leaflet";
+import { useNavigate } from "react-router-dom";
+
 // We no longer import CSS or images via the bundler since CSS is loaded via CDN,
 // and images are referenced from the public folder.
 
@@ -12,6 +14,7 @@ import L from "leaflet";
 export default function MapPage({ nodes, routes }) {
   const nodeList = Array.from(nodes.values());
   const routesList = Array.from(routes.values());
+  const navigate = useNavigate();
 
   // Maintain a map of nodes keyed by node number.
   const defaultCenter: [number, number] = [51.505, -0.09];
@@ -37,6 +40,10 @@ export default function MapPage({ nodes, routes }) {
         first.position.longitude_i * 1e-7,
       ];
     }
+  }
+
+  const goToNodePage = (num) => {
+    navigate("/nodepage", { state: { nodenum: num}});
   }
 
   return (
@@ -71,6 +78,7 @@ export default function MapPage({ nodes, routes }) {
                     <strong>Last Heard: </strong>{" "}
                     {new Date(node.last_heard * 1000).toLocaleString()}
                   </p>
+                  <button onClick={() => goToNodePage(node.num)}>NodePage</button>
                 </div>
               </Popup>
             </Marker>

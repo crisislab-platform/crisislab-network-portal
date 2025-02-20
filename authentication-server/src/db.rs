@@ -1,14 +1,18 @@
 use bcrypt::{hash, verify, DEFAULT_COST};
+use jsonwebtoken::errors::Error;
 use rusqlite::Error as RusqliteError;
 use rusqlite::{params, Connection, OptionalExtension, Result};
 use serde::Serialize;
-
+use jsonwebtoken::{decode, Algorithm, DecodingKey, Validation}; 
+use crate::models::{Claims, VerifiedTokenData, SECRET_KEY}; // Import the structs
 #[derive(Serialize)]
 pub struct User {
     pub id: i32,
     pub username: String,
     pub is_admin: bool,
 }
+
+
 
 pub fn initialize_database(db_path: &str) -> Result<Connection> {
     let conn = Connection::open(db_path)?;
@@ -57,16 +61,36 @@ pub fn verify_password(conn: &Connection, username: &str, password: &str) -> Res
     }
 }
 
+pub fn verify_token(conn: &Connection, token: &str) -> Result<VerifiedTokenData> {
+    let (db_username, db_is_admin) = conn.prepare("SELECT username, is_admin FROM users WHERE token = ?1")?.query_row(params![token], |row| {
+        Ok((row.get::<_, String>(0)?, row.get::<_, bool>(1)?))
+    })?;
+
+    let decoding_key = DecodingKey::from_secret(SECRET_KEY);
+    let validation = Validation::default();
+    let token_data = decode::<Claims>(token, &decoding_key, &validation).map_err(|_| rusqlite::Error::InvalidQuery)?;
+
+    if token_data.claims.sub == db_username && token_data.claims.is_admin == db_is_admin {
+        Ok(VerifiedTokenData {
+            username: db_username,
+            is_admin: db_is_admin,
+        })
+    }else{
+        Err(rusqlite::Error::QueryReturnedNoRows.into())
+    }
+
+    
+}
+
 pub fn new_user(
     conn: &Connection,
-    operator_uname: &str,
+    operator_token: &str,
     uname: &str,
     pword: &str,
     admin: &bool,
 ) -> Result<bool> {
-    let mut can_add_stmt = conn.prepare("SELECT is_admin FROM users WHERE username = ?;")?;
-    let can_add: bool = can_add_stmt.query_row(params![operator_uname], |row| row.get(0))?;
-    if !can_add {
+    let operator_data = verify_token(conn, operator_token)?;
+    if !operator_data.is_admin {
         Ok(false)
     } else {
         conn.execute(
@@ -95,9 +119,9 @@ pub fn get_token(conn: &Connection, uname: &str) -> Result<Option<String>> {
     Ok(token)
 }
 
-pub fn delete_user(conn: &Connection, operator_uname: &str, uname: &str) -> Result<bool> {
-    let mut stmt = conn.prepare("SELECT is_admin FROM users WHERE username = ?;")?;
-    if !stmt.query_row(params![operator_uname], |row| row.get(0))? {
+pub fn delete_user(conn: &Connection, operator_token: &str, uname: &str) -> Result<bool> {
+    let op_data = verify_token(conn, operator_token)?;
+    if !op_data.is_admin {
         Ok(false)
     } else {
         conn.execute("DELETE FROM users WHERE username = ?1", params![uname])?;
@@ -107,44 +131,30 @@ pub fn delete_user(conn: &Connection, operator_uname: &str, uname: &str) -> Resu
 
 pub fn update_password(
     conn: &Connection,
-    operator_uname: &str,
+    operator_token: &str,
     uname: &str,
     old_password: &str,
     new_password: &str,
 ) -> Result<bool> {
     let mut auth: bool = false;
-    
-    if conn
-        .prepare("SELECT is_admin FROM users WHERE username = ?1")?
-        .query_row(params![operator_uname], |row| row.get(0))?
-    {
+
+    let op_data = verify_token(conn, operator_token)?;
+
+    if op_data.is_admin {
         auth = true;
     } else {
-        if operator_uname == uname {
+        if op_data.username == uname {
             auth = true;
         }
-        let stored_password: String = conn
-        .prepare("SELECT password FROM users WHERE username = ?1")?
-        .query_row(params![uname], |row| row.get(0))?;
-
-        match verify(old_password, &stored_password) {
-            Ok(is_valid) => {
-                if !is_valid {
-                    auth = false;
-                }else{
-                    auth = true;
-                }
-            }
-
-            Err(_) => return Ok(false),
-        }
-    }      
+        let old_password_check: bool = verify_password(conn, uname, old_password)?;
+        auth = old_password_check;
+    }     
 
     if auth {
-        let newP = hash(new_password, DEFAULT_COST).ok();
+        let new_p = hash(new_password, DEFAULT_COST).ok();
         conn.execute(
             "UPDATE users SET password = ?1 WHERE username = ?2;",
-            params![newP, uname],
+            params![new_p, uname],
         )?;
         Ok(true)
     } else {
@@ -169,6 +179,7 @@ pub fn get_all_users(conn: &Connection) -> rusqlite::Result<Vec<User>> {
 
     Ok(users)
 }
+
 
 pub fn is_admin(conn: &Connection, uname: &str) -> rusqlite::Result<bool> {
     let res: Option<bool> = conn.prepare("SELECT is_admin FROM users WHERE username = ?1")?.query_row(params![uname], |row| row.get(0)).optional()?;

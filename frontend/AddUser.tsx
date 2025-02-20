@@ -12,13 +12,14 @@ export default function AddUser({ currUser, host }) {
         event.preventDefault();
 
         try {
+            let tok = localStorage.getItem("token");
             const response = await fetch("http://" + host + "/add_user", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
-                    creator: currUser,
+                    token: tok,
                     username,
                     password,
                     isAdmin: admin,

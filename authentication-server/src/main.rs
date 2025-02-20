@@ -3,7 +3,11 @@ extern crate rocket;
 use bcrypt::{hash, verify, DEFAULT_COST};
 use chrono::Utc;
 use db::{
-    delete_user, get_all_users, initialize_database, is_admin, new_user, set_token, update_password, verify_password, User
+    is_admin, delete_user, get_all_users, initialize_database,new_user, set_token, update_password, verify_password, User
+};
+use models::{
+    Claims,
+    SECRET_KEY
 };
 use jsonwebtoken::{encode, EncodingKey, Header};
 use rocket::fs::NamedFile;
@@ -15,16 +19,16 @@ use rocket::State;
 use std::arch::asm;
 use std::path::Path;
 use std::sync::Mutex;
+use rocket_cors::{
+    AllowedHeaders, AllowedMethods, AllowedOrigins, CorsOptions
+};
+use rocket::fairing::AdHoc;
+
 
 mod db;
+mod models;
 
 /// JWT Claims structure
-#[derive(Debug, Serialize, Deserialize)]
-struct Claims {
-    sub: String, // Subject (username)a
-    is_admin: bool,
-    exp: usize,  // Expiration time (as a UNIX timestamp)
-}
 
 /// Login payload
 #[derive(Deserialize)]
@@ -41,7 +45,7 @@ struct LoginResponse {
 
 #[derive(Deserialize)]
 struct NewUserdata {
-    creator: String,
+    token: String,
     username: String,
     password: String,
     isAdmin: bool,
@@ -54,7 +58,7 @@ struct NewUserResponse {
 
 #[derive(Deserialize)]
 struct RemoveUserData {
-    remover: String,
+    token: String,
     username: String,
 }
 
@@ -75,7 +79,7 @@ struct AdminCheckResponse {
 
 #[derive(Deserialize)]
 struct PasswordResetdata {
-    operator: String,
+    token: String,
     username: String,
     oldPassword: String,
     newPassword: String,
@@ -84,8 +88,6 @@ struct PasswordResetdata {
 
 
 /// Secret key for JWT
-const SECRET_KEY: &[u8] = b"yowzabazinga";
-
 /// Login endpoint
 #[post("/login", data = "<login_data>")]
 async fn login(
@@ -143,7 +145,7 @@ async fn add_user(
 
     let passed = new_user(
         &conn,
-        &add_user_data.creator,
+        &add_user_data.token,
         &add_user_data.username,
         &add_user_data.password,
         &add_user_data.isAdmin,
@@ -167,7 +169,7 @@ async fn remove_user(
     let remove_user_data = user_data.into_inner();
     let conn = conn.lock().unwrap();
 
-    let passed: bool = delete_user(&conn, &remove_user_data.remover, &remove_user_data.username)
+    let passed: bool = delete_user(&conn, &remove_user_data.token, &remove_user_data.username)
         .map_err(|_| status::Unauthorized("database delete failed".to_string()))?;
 
     let removed_user: String = remove_user_data.username;
@@ -215,7 +217,7 @@ async fn reset_password(
     let reset_password_data = user_data.into_inner();
     let conn = conn.lock().unwrap();
 
-    match update_password(&conn, &reset_password_data.operator, &reset_password_data.username, &reset_password_data.oldPassword, &reset_password_data.newPassword){
+    match update_password(&conn, &reset_password_data.token, &reset_password_data.username, &reset_password_data.oldPassword, &reset_password_data.newPassword){
         Ok(success) => {
             if success {
                 Status::Ok
@@ -231,8 +233,31 @@ async fn reset_password(
 
 #[launch]
 fn rocket() -> _ {
+    let allowed_origins = AllowedOrigins::all();
+
+    let allowed_methods = vec!["GET", "POST", "DELETE", "OPTIONS"]
+        .into_iter()
+        .map(|s| s.parse().unwrap())
+        .collect::<AllowedMethods>();
+
+    let cors_options = CorsOptions {
+        allowed_origins,
+        allowed_methods,
+        allowed_headers: AllowedHeaders::some(&[
+            "Authorization",
+            "Accept",
+            "Content-Type",
+        ]),
+        allow_credentials: true,
+        ..Default::default()
+    };
+
+    let cors = cors_options.to_cors().expect("Could not build CORS fairing");
+
+
     let conn = initialize_database("users.db").expect("Failed to initialize database");
     rocket::build()
+        .attach(cors)
         .manage(Mutex::new(conn))
         .configure(rocket::Config::figment().merge(("port", 8001)))
         .mount("/", routes![login, logout, all_users, reset_password, add_user, remove_user]) // Route for `/`

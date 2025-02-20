@@ -24,13 +24,14 @@ export default function ModAccounts({currUser, host, setLoggedIn, setCurrUser, l
 
   const handleRemove = async (user) => {
         try {
+            let tkn = localStorage.getItem("token");
             const response = await fetch("http://" + host + "/remove_user", {
                 method: "DELETE",
                 headers: {
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
-                    remover: currUser,
+                    token: tkn,
                     username: user,
                 }),
             });

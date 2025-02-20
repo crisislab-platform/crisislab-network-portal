@@ -14,13 +14,14 @@ export default function ChangePassword({logout, host, currUser}) {
     event.preventDefault();
 
    try {
+    let tkn = localStorage.getItem("token");
     const response = await fetch("http://" + host + "/resetpassword", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
         },
         body: JSON.stringify({
-            operator: currUser,
+            token: tkn,
             username,
             oldPassword,
             newPassword,

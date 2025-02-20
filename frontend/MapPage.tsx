@@ -46,9 +46,14 @@ export default function MapPage({ nodes, routes }) {
     navigate("/nodepage", { state: { nodenum: num}});
   }
 
+  const [showRoutes, setShowRoutes] = useState<boolean>(true);
+
   return (
     <div className="map-wrapper">
-      <MapContainer center={center} zoom={13} style={{ height: "100%" }}>
+      <div className='center margin-below1'>
+        <a className="nav-button" onClick={() => setShowRoutes(!showRoutes)}>Toggle Routes</a>
+      </div>
+      <MapContainer center={center} zoom={4} style={{ height: "100%" }}>
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -78,14 +83,14 @@ export default function MapPage({ nodes, routes }) {
                     <strong>Last Heard: </strong>{" "}
                     {new Date(node.last_heard * 1000).toLocaleString()}
                   </p>
-                  <button onClick={() => goToNodePage(node.num)}>NodePage</button>
+                  <a onClick={() => goToNodePage(node.num)}>NodePage</a>
                 </div>
               </Popup>
             </Marker>
           );
         })}
 
-        {routesList.map((route) => {
+        {showRoutes && routesList.map((route) => {
           const fromPos =  getPosition(route.from);
           const toPos = getPosition(route.to);
           if(!fromPos || !toPos) return null;

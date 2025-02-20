@@ -108,6 +108,7 @@ const App: React.FC = () => {
       alert("Logout sucessfull!");
 
       setLoggedIn(false);
+      setIsAdmin(false);
       setCurrUser("");
     } catch (error) {
       console.error("Error during login: ", error);

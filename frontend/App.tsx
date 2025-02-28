@@ -118,6 +118,46 @@ const App: React.FC = () => {
 
   const [nodes, setNodes] = useState<Map<number, NodeInfo>>(new Map());
 
+ useEffect(() => {
+    fetch("http://127.0.0.1:8080/get_nodes")
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((data: NodeInfo[]) => {
+        const newNodes = new Map<number, NodeInfo>();
+        data.forEach((node) => newNodes.set(node.num, node));
+        setNodes(newNodes);
+      })
+      .catch((error) => {
+        console.error("Error fetching nodes:", error);
+      });
+
+    fetch("http://127.0.0.1:8080/get_routes")
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((data: Route[]) => {
+        const newRoutes = new Map<string, Route>();
+        data.forEach((route) => {
+         const key =
+            route.from < route.to
+              ? `${route.from}-${route.to}`
+              : `${route.to}-${route.from}`;
+          newRoutes.set(key, route);
+        });
+        setRoutes(newRoutes);
+      })
+      .catch((error) => {
+        console.error("Error fetching routes:", error);
+      });
+  }, []);   
+
   useEffect(() => {
     const ws = new WebSocket("ws://127.0.0.1:8080/ws");
     ws.onmessage = (event) => {

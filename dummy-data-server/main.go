@@ -134,7 +134,9 @@ func getNodesHandler(w http.ResponseWriter, r *http.Request) {
 		nodeList = append(nodeList, node)
 	}
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(nodeList)
+	if err := json.NewEncoder(w).Encode(nodeList); err != nil {
+		log.Println("Error encoding node list:", err)
+	}
 }
 
 // getRoutesHandler returns a JSON array of all Routes.

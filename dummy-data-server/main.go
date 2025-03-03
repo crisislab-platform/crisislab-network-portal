@@ -171,24 +171,25 @@ func updateData() {
 		} else {
 			broadcastNodeUpdate(nodeJSON)
 		}
-
-		// Generate or update a Route
-		route := generateDummyRoute()
-		// Create a canonical key that is order-independent.
-		var key string
-		if route.From < route.To {
-			key = fmt.Sprintf("%d-%d", route.From, route.To)
-		} else {
-			key = fmt.Sprintf("%d-%d", route.To, route.From)
-		}
-		routesMutex.Lock()
-		routesStore[key] = route
-		routesMutex.Unlock()
-		routeJSON, err := json.Marshal(route)
-		if err != nil {
-			log.Println("Error marshalling route:", err)
-		} else {
-			broadcastRouteUpdate(routeJSON)
+		if len(routesStore) <= 50 {
+			// Generate or update a Route
+			route := generateDummyRoute()
+			// Create a canonical key that is order-independent.
+			var key string
+			if route.From < route.To {
+				key = fmt.Sprintf("%d-%d", route.From, route.To)
+			} else {
+				key = fmt.Sprintf("%d-%d", route.To, route.From)
+			}
+			routesMutex.Lock()
+			routesStore[key] = route
+			routesMutex.Unlock()
+			routeJSON, err := json.Marshal(route)
+			if err != nil {
+				log.Println("Error marshalling route:", err)
+			} else {
+				broadcastRouteUpdate(routeJSON)
+			}
 		}
 	}
 }

@@ -118,7 +118,7 @@ const App: React.FC = () => {
 
   const [nodes, setNodes] = useState<Map<number, NodeInfo>>(new Map());
 
- useEffect(() => {
+  useEffect(() => {
     fetch("http://127.0.0.1:8080/get_nodes")
       .then((response) => {
         if (!response.ok) {
@@ -145,7 +145,7 @@ const App: React.FC = () => {
       .then((data: Route[]) => {
         const newRoutes = new Map<string, Route>();
         data.forEach((route) => {
-         const key =
+          const key =
             route.from < route.to
               ? `${route.from}-${route.to}`
               : `${route.to}-${route.from}`;
@@ -156,7 +156,7 @@ const App: React.FC = () => {
       .catch((error) => {
         console.error("Error fetching routes:", error);
       });
-  }, []);   
+  }, []);
 
   useEffect(() => {
     const ws = new WebSocket("ws://127.0.0.1:8080/ws");
@@ -201,6 +201,7 @@ const App: React.FC = () => {
           const newRoutes = new Map(prevRoutes);
           // This will add a new route or replace an existing one (even if it's in the opposite direction)
           newRoutes.set(key, incomingRoute);
+          console.log(newRoutes.size);
           return newRoutes;
         });
       } catch (error) {
@@ -228,7 +229,7 @@ const App: React.FC = () => {
         />
         <Routes>
           <Route path="/table" element={<Table nodes={nodes} />} />
-          <Route path="/map" element={<MapPage nodes={nodes} routes={routes}/>} />
+          <Route path="/map" element={<MapPage nodes={nodes} routes={routes} />} />
           <Route
             path="/accounts"
             element={

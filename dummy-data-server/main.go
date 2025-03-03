@@ -7,6 +7,7 @@ import (
 	"log"
 	"math/rand"
 	"net/http"
+	"sync"
 	"time"
 
 	"dummy-data-server/models"
@@ -14,7 +15,29 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-// upgrader is used to upgrade HTTP connections to websockets.
+// --- Global Variables for Data Stores ---
+
+var (
+	// nodesStore holds the current NodeInfo objects, keyed by node number.
+	nodesStore = make(map[uint32]models.NodeInfo)
+	nodesMutex sync.RWMutex
+
+	// routesStore holds the current Routes, keyed by a canonical "from-to" string.
+	routesStore = make(map[string]models.Route)
+	routesMutex sync.RWMutex
+)
+
+// --- Global Variables for WebSocket Clients ---
+
+var (
+	nodeClients   = make(map[*websocket.Conn]bool)
+	nodeClientsMu sync.Mutex
+
+	routeClients   = make(map[*websocket.Conn]bool)
+	routeClientsMu sync.Mutex
+)
+
+// --- WebSocket Upgrader ---
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
@@ -22,80 +45,173 @@ var upgrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool { return true },
 }
 
-// wsHandler upgrades the HTTP connection to a websocket and periodically sends dummy NodeInfo JSON.
-func wsHandler(w http.ResponseWriter, r *http.Request) {
-	conn, err := upgrader.Upgrade(w, r, nil)
-	if err != nil {
-		log.Println("Upgrade error:", err)
-		return
-	}
-	defer conn.Close()
+// --- Helper Functions to Broadcast Updates ---
 
-	// Send a new dummy NodeInfo every second.
-	ticker := time.NewTicker(1 * time.Second)
-	defer ticker.Stop()
-
-	for {
-		select {
-		case t := <-ticker.C:
-			nodeInfo := generateDummyNodeInfo()
-			// Update the timestamp field to the current time.
-			nodeInfo.Position.Time = int32(t.Unix())
-			data, err := json.Marshal(nodeInfo)
-			if err != nil {
-				log.Println("JSON marshal error:", err)
-				return
-			}
-			if err := conn.WriteMessage(websocket.TextMessage, data); err != nil {
-				log.Println("Write message error:", err)
-				return
-			}
+func broadcastNodeUpdate(update []byte) {
+	nodeClientsMu.Lock()
+	defer nodeClientsMu.Unlock()
+	for conn := range nodeClients {
+		if err := conn.WriteMessage(websocket.TextMessage, update); err != nil {
+			log.Println("Error writing node update:", err)
+			conn.Close()
+			delete(nodeClients, conn)
 		}
 	}
-
 }
 
-// wsHandler upgrades the HTTP connection to a websocket and periodically sends dummy NodeInfo JSON.
+func broadcastRouteUpdate(update []byte) {
+	routeClientsMu.Lock()
+	defer routeClientsMu.Unlock()
+	for conn := range routeClients {
+		if err := conn.WriteMessage(websocket.TextMessage, update); err != nil {
+			log.Println("Error writing route update:", err)
+			conn.Close()
+			delete(routeClients, conn)
+		}
+	}
+}
+
+// --- WebSocket Handlers ---
+
+// wsHandlerNodes handles WebSocket connections for node updates.
+func wsHandlerNodes(w http.ResponseWriter, r *http.Request) {
+	conn, err := upgrader.Upgrade(w, r, nil)
+	if err != nil {
+		log.Println("Upgrade error (nodes):", err)
+		return
+	}
+	// Register connection
+	nodeClientsMu.Lock()
+	nodeClients[conn] = true
+	nodeClientsMu.Unlock()
+
+	defer func() {
+		nodeClientsMu.Lock()
+		delete(nodeClients, conn)
+		nodeClientsMu.Unlock()
+		conn.Close()
+	}()
+	// Keep the connection open
+	for {
+		if _, _, err := conn.ReadMessage(); err != nil {
+			break
+		}
+	}
+}
+
+// wsHandlerRoutes handles WebSocket connections for route updates.
 func wsHandlerRoutes(w http.ResponseWriter, r *http.Request) {
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
-		log.Println("Upgrade error:", err)
+		log.Println("Upgrade error (routes):", err)
 		return
 	}
-	defer conn.Close()
+	routeClientsMu.Lock()
+	routeClients[conn] = true
+	routeClientsMu.Unlock()
 
-	// Send a new dummy NodeInfo every second.
-	ticker := time.NewTicker(1 * time.Second)
-	defer ticker.Stop()
-
+	defer func() {
+		routeClientsMu.Lock()
+		delete(routeClients, conn)
+		routeClientsMu.Unlock()
+		conn.Close()
+	}()
 	for {
-		select {
-		case t := <-ticker.C:
+		if _, _, err := conn.ReadMessage(); err != nil {
+			break
+		}
+	}
+}
+
+// --- HTTP Endpoints to Retrieve Entire Data Sets ---
+
+// getNodesHandler returns a JSON array of all NodeInfo objects.
+func getNodesHandler(w http.ResponseWriter, r *http.Request) {
+	nodesMutex.RLock()
+	defer nodesMutex.RUnlock()
+	var nodeList []models.NodeInfo
+	for _, node := range nodesStore {
+		nodeList = append(nodeList, node)
+	}
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(nodeList); err != nil {
+		log.Println("Error encoding node list:", err)
+	}
+}
+
+// getRoutesHandler returns a JSON array of all Routes.
+func getRoutesHandler(w http.ResponseWriter, r *http.Request) {
+	routesMutex.RLock()
+	defer routesMutex.RUnlock()
+	var routeList []models.Route
+	for _, route := range routesStore {
+		routeList = append(routeList, route)
+	}
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(routeList)
+}
+
+// --- Timed Function to Update Data ---
+
+func updateData() {
+	// Run every 5 seconds (adjust as needed)
+	ticker := time.NewTicker(5 * time.Second)
+	defer ticker.Stop()
+	for {
+		<-ticker.C
+
+		// Generate or update a NodeInfo
+		node := generateDummyNodeInfo()
+		nodesMutex.Lock()
+		nodesStore[node.Num] = node // update or create
+		nodesMutex.Unlock()
+		nodeJSON, err := json.Marshal(node)
+		if err != nil {
+			log.Println("Error marshalling node:", err)
+		} else {
+			broadcastNodeUpdate(nodeJSON)
+		}
+		if len(routesStore) <= 50 {
+			// Generate or update a Route
 			route := generateDummyRoute()
-			fmt.Println(t)
-			data, err := json.Marshal(route)
-			if err != nil {
-				log.Println("JSON marshal error:", err)
-				return
+			// Create a canonical key that is order-independent.
+			var key string
+			if route.From < route.To {
+				key = fmt.Sprintf("%d-%d", route.From, route.To)
+			} else {
+				key = fmt.Sprintf("%d-%d", route.To, route.From)
 			}
-			if err := conn.WriteMessage(websocket.TextMessage, data); err != nil {
-				log.Println("Write message error:", err)
-				return
+			routesMutex.Lock()
+			routesStore[key] = route
+			routesMutex.Unlock()
+			routeJSON, err := json.Marshal(route)
+			if err != nil {
+				log.Println("Error marshalling route:", err)
+			} else {
+				broadcastRouteUpdate(routeJSON)
 			}
 		}
 	}
 }
 
+// --- Main Function ---
+
 func main() {
-	// Seed the random number generator.
 	rand.Seed(time.Now().UnixNano())
 
-	// Route for websocket connection.
-	http.HandleFunc("/ws", wsHandler)
+	// Start the data update goroutine.
+	go updateData()
 
+	// WebSocket endpoints
+	http.HandleFunc("/ws", wsHandlerNodes)
 	http.HandleFunc("/wsr", wsHandlerRoutes)
 
-	// Serve static files (including index.html) from the "./static" directory.
+	// HTTP endpoints to get full data
+	http.HandleFunc("/get_nodes", getNodesHandler)
+	http.HandleFunc("/get_routes", getRoutesHandler)
+
+	// Serve static files from the "./static" directory
+	// This will serve your webapp.
 	http.Handle("/", http.FileServer(http.Dir("./static")))
 
 	log.Println("Server starting on :8080")
@@ -104,7 +220,8 @@ func main() {
 	}
 }
 
-// generateDummyNodeInfo creates a dummy NodeInfo structure with random data.
+// --- Dummy Data Generation Functions ---
+
 func generateDummyNodeInfo() models.NodeInfo {
 	num := uint32(rand.Intn(50))
 	user := models.User{
@@ -118,7 +235,6 @@ func generateDummyNodeInfo() models.NodeInfo {
 	}
 	lat := int32(rand.Float64()*180e7 - 90e7)
 	lon := int32(rand.Float64()*360e7 - 180e7)
-
 	position := models.Position{
 		LatitudeI:             &lat,
 		LongitudeI:            &lon,
@@ -159,12 +275,16 @@ func generateDummyNodeInfo() models.NodeInfo {
 
 func generateDummyRoute() models.Route {
 	return models.Route{
-		To:   uint32(rand.Intn(50)),
 		From: uint32(rand.Intn(50)),
+		To:   uint32(rand.Intn(50)),
 		RSSI: uint32(rand.Intn(200)),
 	}
 }
 
-// Helper functions to return pointers for optional fields.
-func ptrUint32(v uint32) *uint32    { return &v }
-func ptrFloat32(v float32) *float32 { return &v }
+func ptrUint32(v uint32) *uint32 {
+	return &v
+}
+
+func ptrFloat32(v float32) *float32 {
+	return &v
+}

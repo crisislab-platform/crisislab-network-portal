@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { liveInfo } from "./App";
 
-export default function Search({ nodes }) {
+export default function Search(nodes: Map<number, liveInfo>) {
   const [num, setNum] = useState<string>("");
   const [username, setUsername] = useState<string>("");
   const [devShortName, setDevShortName] = useState<string>("");

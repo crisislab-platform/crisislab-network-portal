@@ -1,8 +1,14 @@
 import React from "react";
 import { useLocation } from "react-router-dom";
 import AsciiTreeView from "./TreeView";
+import liveInfo from "./App";
 
-export default function NodePage({ nodes, isAdmin }) {
+interface NodePageProps {
+  nodes: Map<number, liveInfo>;
+  isAdmin: boolean;
+}
+
+export default function NodePage({ nodes, isAdmin }: NodePageProps) {
   const location = useLocation();
   const nodenum = location.state.nodenum;
   console.log(nodenum);

@@ -1,17 +1,28 @@
 // src/MapComponent.tsx
 import React, { useEffect, useState } from "react";
-import { MapContainer, TileLayer, Marker, Popup, Polyline } from "react-leaflet";
+import {
+  MapContainer,
+  TileLayer,
+  Marker,
+  Popup,
+  Polyline,
+} from "react-leaflet";
 import L from "leaflet";
 import { useNavigate } from "react-router-dom";
+import { liveInfo, Route } from "./App";
 
 // We no longer import CSS or images via the bundler since CSS is loaded via CDN,
 // and images are referenced from the public folder.
 
 // -------------------------------------------------------------------
 // Type Definitions (based on your protobuf definitions)
-// -------------------------------------------------------------------
+// ------------------------------------------------------------------
+interface MapPageProps {
+  nodes: Map<number, liveInfo>;
+  routes: Map<string, Route>;
+}
 
-export default function MapPage({ nodes, routes }) {
+export default function MapPage({ nodes, routes }: MapPageProps) {
   const nodeList = Array.from(nodes.values());
   const routesList = Array.from(routes.values());
   const navigate = useNavigate();
@@ -21,7 +32,11 @@ export default function MapPage({ nodes, routes }) {
 
   const getPosition = (nodenum: number): [number, number] | null => {
     const node = nodes.get(nodenum);
-    if (!node || node.position.latitude_i === undefined || node.position.longitude_i === undefined) {
+    if (
+      !node ||
+      node.position.latitude_i === undefined ||
+      node.position.longitude_i === undefined
+    ) {
       return null;
     }
 
@@ -43,15 +58,17 @@ export default function MapPage({ nodes, routes }) {
   }
 
   const goToNodePage = (num) => {
-    navigate("/nodepage", { state: { nodenum: num}});
-  }
+    navigate("/nodepage", { state: { nodenum: num } });
+  };
 
   const [showRoutes, setShowRoutes] = useState<boolean>(true);
 
   return (
     <div className="map-wrapper">
-      <div className='center margin-below1'>
-        <a className="nav-button" onClick={() => setShowRoutes(!showRoutes)}>Toggle Routes</a>
+      <div className="center margin-below1">
+        <a className="nav-button" onClick={() => setShowRoutes(!showRoutes)}>
+          Toggle Routes
+        </a>
       </div>
       <MapContainer center={center} zoom={4} style={{ height: "100%" }}>
         <TileLayer
@@ -90,22 +107,23 @@ export default function MapPage({ nodes, routes }) {
           );
         })}
 
-        {showRoutes && routesList.map((route) => {
-          const fromPos =  getPosition(route.from);
-          const toPos = getPosition(route.to);
-          if(!fromPos || !toPos) return null;
+        {showRoutes &&
+          routesList.map((route) => {
+            const fromPos = getPosition(route.from);
+            const toPos = getPosition(route.to);
+            if (!fromPos || !toPos) return null;
 
-          const key =
-          route.from < route.to
-            ? `${route.from}-${route.to}`
-            : `${route.to}-${route.from}`;
+            const key =
+              route.from < route.to
+                ? `${route.from}-${route.to}`
+                : `${route.to}-${route.from}`;
 
-          return (
-            <Polyline key={key} positions={[fromPos, toPos]} color="blue">
-              <Popup>RSSI: {route.rssi} </Popup>
-            </Polyline>
-          );
-        })}
+            return (
+              <Polyline key={key} positions={[fromPos, toPos]} color="blue">
+                <Popup>RSSI: {route.rssi} </Popup>
+              </Polyline>
+            );
+          })}
       </MapContainer>
     </div>
   );

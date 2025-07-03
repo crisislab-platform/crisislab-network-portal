@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
+import { liveInfo } from "./App";
 
-export default function Table({ nodes }) {
+export default function Table(nodes: Map<number, liveInfo>) {
   const nodeList = Array.from(nodes.values());
 
   return (

@@ -1,7 +1,7 @@
 import React from "react";
 import { useLocation } from "react-router-dom";
 import AsciiTreeView from "./TreeView";
-import liveInfo from "./App";
+import { liveInfo } from "./App";
 
 interface NodePageProps {
   nodes: Map<number, liveInfo>;

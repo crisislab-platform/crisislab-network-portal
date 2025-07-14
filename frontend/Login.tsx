@@ -8,7 +8,7 @@ interface LoginProps {
   setCurrUser: React.Dispatch<React.SetStateAction<string>>;
   host: string;
   currUser: string;
-  setIsAdmin: string;
+  setIsAdmin: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export default function Login({

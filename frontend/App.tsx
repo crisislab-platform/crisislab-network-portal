@@ -190,13 +190,13 @@ type DeviceMetrics = {
   uptime_seconds?: number;
 };
 
-type setMeshSettings = {
+export type setMeshSettings = {
   broadcast_interval_seconds: number;
   channel_name: string;
   ping_timeout_seconds: number;
 };
 
-type setServerSettings = {
+export type setServerSettings = {
   signal_data_timeout_seconds: number;
 };
 
@@ -219,6 +219,11 @@ const App: React.FC = () => {
   // const [host, setHost] = useState<string | null>(null);
   const host = "127.0.0.1:8001";
   const [isAdmin, setIsAdmin] = useState<boolean>(false);
+
+  const [broadcastInterval, setBroadcastInterval] = useState<number>();
+  const [channelName, setChannelName] = useState<string>();
+  const [ping_timeout_seconds, setPing_timeout_seconds] = useState<number>();
+  const [signal_data_timeout_seconds, setSignal_data_timeout_seconds] = useState<number>();
   // useEffect(() => {
   //   setHost(location.host)
   // }, []);
@@ -275,6 +280,21 @@ const App: React.FC = () => {
     //   .catch((error) => {
     //     console.error("Error fetching nodes:", error);
     //   });
+    fetch("http://127.0.0.1:8000/admin/set-mesh-settings")
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((data: setMeshSettings) => {
+        setBroadcastInterval(data.broadcast_interval_seconds);
+        setChannelName(data.channel_name);
+        setPing_timeout_seconds(data.ping_timeout_seconds);
+      })
+      .catch((error) => {
+        console.error("Error fetching mesh settings")
+      });
 
     fetch("http://127.0.0.1:8080/update-routes")
       .then((response) => {

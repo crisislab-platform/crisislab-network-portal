@@ -8,6 +8,7 @@ import ChangePassword from "./ChangePassword";
 import AddUser from "./AddUser";
 import Search from "./Search";
 import NodePage from "./NodePage";
+import NetworkAndServerAdmin from "./NetworkAndServerAdmin";
 
 export enum HardwareModel {
   UNSET = 0,
@@ -197,7 +198,10 @@ export type setMeshSettings = {
 };
 
 export type setServerSettings = {
+  get_settings_timeout_seconds: number;
   signal_data_timeout_seconds: number;
+  route_cost_weight: number;
+  route_hops_weight: number;
 };
 
 export type liveInfo = {
@@ -220,10 +224,7 @@ const App: React.FC = () => {
   const host = "127.0.0.1:8001";
   const [isAdmin, setIsAdmin] = useState<boolean>(false);
 
-  const [broadcastInterval, setBroadcastInterval] = useState<number>();
-  const [channelName, setChannelName] = useState<string>();
-  const [ping_timeout_seconds, setPing_timeout_seconds] = useState<number>();
-  const [signal_data_timeout_seconds, setSignal_data_timeout_seconds] = useState<number>();
+
   // useEffect(() => {
   //   setHost(location.host)
   // }, []);
@@ -265,37 +266,6 @@ const App: React.FC = () => {
   const [pathData, setPathData] = useState<updateRouteData>();
 
   useEffect(() => {
-    // fetch("http://127.0.0.1:8080/get_nodes")
-    //   .then((response) => {
-    //     if (!response.ok) {
-    //       throw new Error(`HTTP error! status: ${response.status}`);
-    //     }
-    //     return response.json();
-    //   })
-    //   .then((data: NodeInfo[]) => {
-    //     const newNodes = new Map<number, liveInfo>();
-    //     data.forEach((node) => newNodes.set(node.num, node));
-    //     setNodes(newNodes);
-    //   })
-    //   .catch((error) => {
-    //     console.error("Error fetching nodes:", error);
-    //   });
-    fetch("http://127.0.0.1:8000/admin/set-mesh-settings")
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        return response.json();
-      })
-      .then((data: setMeshSettings) => {
-        setBroadcastInterval(data.broadcast_interval_seconds);
-        setChannelName(data.channel_name);
-        setPing_timeout_seconds(data.ping_timeout_seconds);
-      })
-      .catch((error) => {
-        console.error("Error fetching mesh settings")
-      });
-
     fetch("http://127.0.0.1:8080/update-routes")
       .then((response) => {
         if (!response.ok) {
@@ -403,6 +373,10 @@ const App: React.FC = () => {
           <Route
             path="/nodepage"
             element={<NodePage nodes={nodes} isAdmin={isAdmin} />}
+          />
+          <Route
+            path="/network-settings"
+            element={<NetworkAndServerAdmin host={host}/>}
           />
         </Routes>
       </Router>

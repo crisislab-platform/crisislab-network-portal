@@ -32,6 +32,9 @@ export default function Header({
   const goToSearch = () => {
     navigate("/search");
   };
+  const goToSettings = () => {
+    navigate("/network-settings");
+  };
   const logOutToRoot = async (event) => {
     console.log("logout function:", logout);
     console.log("logging out ");
@@ -72,6 +75,12 @@ export default function Header({
         >
           {loggedIn ? "Account" : "Login"}
         </a>
+        
+        {loggedIn && (
+          <a className="nav-button" onClick={goToSettings}>
+            Settings
+          </a>
+        )}
         {loggedIn && (
           <a className="nav-button" onClick={logOutToRoot}>
             Logout

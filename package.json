@@ -12,6 +12,7 @@
   "license": "ISC",
   "dependencies": {
     "@react-google-maps/api": "^2.20.5",
+    "@srcery-colors/srcery-palette": "^1.1.0",
     "jose": "^5.9.6",
     "leaflet": "^1.9.4",
     "react": "19.0.0-rc.1",

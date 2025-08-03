@@ -75,7 +75,6 @@ export default function Header({
         >
           {loggedIn ? "Account" : "Login"}
         </a>
-        
         {loggedIn && (
           <a className="nav-button" onClick={goToSettings}>
             Settings

@@ -376,7 +376,7 @@ const App: React.FC = () => {
           />
           <Route
             path="/network-settings"
-            element={<NetworkAndServerAdmin host={host}/>}
+            element={<NetworkAndServerAdmin host={host} isAdmin={isAdmin} />}
           />
         </Routes>
       </Router>

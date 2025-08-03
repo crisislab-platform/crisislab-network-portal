@@ -11,6 +11,9 @@ importers:
       '@react-google-maps/api':
         specifier: ^2.20.5
         version: 2.20.5(react-dom@19.0.0-rc.1(react@19.0.0-rc.1))(react@19.0.0-rc.1)
+      '@srcery-colors/srcery-palette':
+        specifier: ^1.1.0
+        version: 1.1.0
       jose:
         specifier: ^5.9.6
         version: 5.9.6
@@ -310,6 +313,9 @@ packages:
       leaflet: ^1.9.0
       react: ^19.0.0
       react-dom: ^19.0.0
+
+  '@srcery-colors/srcery-palette@1.1.0':
+    resolution: {integrity: sha512-NBYEoTm1A7OMyfF8M88PMfR3g7DhilDFC3KK/ysI1qUSioGTrMNju7iXpzZu0mOsMq15/iXIvl/4SR9jkSEVHw==}
 
   '@types/cookie@0.6.0':
     resolution: {integrity: sha512-4Kh9a6B2bQciAhf7FSuMRRkUWecJgJu9nPnx3yzpsfXX/c50REIqpHY4C82bXP90qrLtXtkDxTZosYO3UpOwlA==}
@@ -830,6 +836,8 @@ snapshots:
       leaflet: 1.9.4
       react: 19.0.0-rc.1
       react-dom: 19.0.0-rc.1(react@19.0.0-rc.1)
+
+  '@srcery-colors/srcery-palette@1.1.0': {}
 
   '@types/cookie@0.6.0': {}
 

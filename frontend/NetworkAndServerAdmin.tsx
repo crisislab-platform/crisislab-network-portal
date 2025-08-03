@@ -5,10 +5,12 @@ import { setMeshSettings, setServerSettings } from "./App";
 
 interface NetworkAndServerAdminProps {
   host: string;
+  isAdmin: boolean;
 }
 
 export default function NetworkAndServerAdmin({
   host,
+  isAdmin,
 }: NetworkAndServerAdminProps) {
   const [broadcastInterval, setBroadcastInterval] = useState<number>(-1);
   const [channelName, setChannelName] = useState<string>("");
@@ -116,78 +118,98 @@ export default function NetworkAndServerAdmin({
 
   return (
     <div className="settingspage">
-      <div className="left">
-        <form>
-          <div>
-            <label>BroadCastInterval</label>
+      <div className="left settings-box">
+        Mesh Settings
+        <form onSubmit={handleMeshSubmit}>
+          <div className="settings-div">
+            <label className="settings-label">BroadCastInterval: </label>
             <input
               type="text"
+              className="settings-input"
               value={broadcastInterval}
               onChange={(e) => setBroadcastInterval(e.target.value)}
             />
           </div>
-          <div>
-            <label>Channel Name</label>
+          <div className="settings-div">
+            <label className="settings-label">Channel Name: </label>
             <input
               type="text"
+              className="settings-input"
               value={channelName}
               onChange={(e) => setChannelName(e.target.value)}
             />
           </div>
-          <div>
-            <label>Ping timeout (s)</label>
+          <div className="settings-div">
+            <label className="settings-label">Ping timeout (s): </label>
             <input
               type="number"
+              className="settings-input"
               value={ping_timeout_seconds}
               onChange={(e) => setPing_timeout_seconds(e.target.value)}
             />
           </div>
-          <div>
-            <label>Signal Data Timeout (s)</label>
+          <div className="settings-div">
+            <label className="settings-label">Signal Data Timeout (s): </label>
             <input
               type="text"
+              className="settings-input"
               value={signal_data_timeout_seconds}
               onChange={(e) => setSignal_data_timeout_seconds(e.target.value)}
             />
           </div>
+          <button type="submit" className="settings-submit-button">
+            Set Mesh Settings
+          </button>
         </form>
       </div>
       {isAdmin && <div className="vr"></div>}
       {isAdmin && (
-        <div className="right">
-          <form>
-            <div>
-              <label>get setting timeout (s)</label>
+        <div className="right settings-box">
+          Server Settings
+          <form onSubmit={handleServerSubmit}>
+            <div className="settings-div">
+              <label className="settings-label">
+                Get setting timeout (s):{" "}
+              </label>
               <input
                 type="text"
+                className="settings-input"
                 value={get_settings_timeout_seconds}
                 onChange={(e) => setGet_setting_timeout_seconds(e.target.value)}
               />
             </div>
-            <div>
-              <label>Set Signal Data timeout (s)</label>
+            <div className="settings-div">
+              <label className="settings-label">
+                Set Signal Data timeout (s):
+              </label>
               <input
                 type="text"
+                className="settings-input"
                 value={signal_data_timeout_seconds}
                 onChange={(e) => setSignal_data_timeout_seconds(e.target.value)}
               />
             </div>
-            <div>
-              <label>Route Cost Weight</label>
+            <div className="settings-div">
+              <label className="settings-label">Route Cost Weight: </label>
               <input
                 type="number"
+                className="settings-input"
                 value={route_cost_weight}
                 onChange={(e) => setRoute_cost_weight(e.target.value)}
               />
             </div>
-            <div>
-              <label>Route Hops Weight</label>
+            <div className="settings-div">
+              <label className="settings-label">Route Hops Weight: </label>
               <input
                 type="text"
+                className="settings-input"
                 value={route_hops_weight}
                 onChange={(e) => setRoute_hops_weight(e.target.value)}
               />
             </div>
+            <button type="submit" className="settings-submit-button">
+              Update Server Settings
+            </button>
           </form>
         </div>
       )}

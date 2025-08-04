@@ -120,11 +120,11 @@ export enum LocSource {
 }
 
 export enum AltSource {
-	ALT_UNSET = 0;
-	ALT_MANUAL = 1;
-	ALT_INTERNAL = 2;
-	ALT_EXTERNAL = 3;
-	ALT_BAROMETRIC = 4;
+  ALT_UNSET = 0,
+  ALT_MANUAL = 1,
+  ALT_INTERNAL = 2,
+  ALT_EXTERNAL = 3,
+  ALT_BAROMETRIC = 4,
 }
 
 // Define types for NodeInfo and related objects.
@@ -215,7 +215,7 @@ export type liveInfo = {
 type RoutePath = number[];
 type updateRouteData = {
   [startNodeId: number]: RoutePath[];
-}
+};
 
 const App: React.FC = () => {
   const [loggedIn, setLoggedIn] = useState<boolean>(false);
@@ -223,7 +223,6 @@ const App: React.FC = () => {
   // const [host, setHost] = useState<string | null>(null);
   const host = "127.0.0.1:8001";
   const [isAdmin, setIsAdmin] = useState<boolean>(false);
-
 
   // useEffect(() => {
   //   setHost(location.host)
@@ -276,12 +275,15 @@ const App: React.FC = () => {
       .then((data: updateRouteData) => {
         const newRoutes = new Map<string, Route>();
 
-        for(const startNodeId in data) {
+        for (const startNodeId in data) {
           const paths = data[startNodeId];
-          for(const path of paths) {
+          for (const path of paths) {
             let previous: number = Number(startNodeId);
-            for(const waypoint of path){
-              const key = previous < waypoint ? `${previous}-${waypoint}`: `${waypoint}-${previous}`;
+            for (const waypoint of path) {
+              const key =
+                previous < waypoint
+                  ? `${previous}-${waypoint}`
+                  : `${waypoint}-${previous}`;
               const value: Route = { to: waypoint, from: previous, rssi: 0 };
               newRoutes.set(key, value);
               previous = waypoint;
@@ -324,8 +326,6 @@ const App: React.FC = () => {
       route.from < route.to ? [route.from, route.to] : [route.to, route.from];
     return `${a}-${b}`;
   };
-
-
 
   return (
     <div className="measure-body center-body">

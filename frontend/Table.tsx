@@ -1,7 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { liveInfo } from "./App";
 
-export default function Table(nodes: Map<number, liveInfo>) {
+interface TableProps {
+  nodes: Map<number, liveInfo>;
+}
+
+export default function Table({ nodes }: TableProps) {
   const nodeList = Array.from(nodes.values());
 
   return (
@@ -19,7 +23,6 @@ export default function Table(nodes: Map<number, liveInfo>) {
             <th style={{ border: "1px solid #ddd", padding: "8px" }}>
               Short Name
             </th>
-            <th style={{ border: "1px solid #ddd", padding: "8px" }}>SNR</th>
             <th style={{ border: "1px solid #ddd", padding: "8px" }}>
               Last Heard
             </th>
@@ -27,9 +30,9 @@ export default function Table(nodes: Map<number, liveInfo>) {
         </thead>
         <tbody>
           {nodeList.map((node) => (
-            <tr key={node.num}>
+            <tr key={node.nodenum}>
               <td style={{ border: "1px solid #ddd", padding: "8px" }}>
-                {node.num}
+                {node.nodenum}
               </td>
               <td style={{ border: "1px solid #ddd", padding: "8px" }}>
                 {node.user.id}
@@ -41,10 +44,7 @@ export default function Table(nodes: Map<number, liveInfo>) {
                 {node.user.short_name}
               </td>
               <td style={{ border: "1px solid #ddd", padding: "8px" }}>
-                {node.snr}
-              </td>
-              <td style={{ border: "1px solid #ddd", padding: "8px" }}>
-                {new Date(node.last_heard * 1000).toLocaleString()}
+                {new Date(node.timestamp * 1000).toLocaleString()}
               </td>
             </tr>
           ))}

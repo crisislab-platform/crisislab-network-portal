@@ -127,7 +127,6 @@ export enum AltSource {
   ALT_BAROMETRIC = 4,
 }
 
-// Define types for NodeInfo and related objects.
 export type Route = {
   to: number;
   from: number;
@@ -222,6 +221,7 @@ const App: React.FC = () => {
   const [currUser, setCurrUser] = useState<string>("");
   // const [host, setHost] = useState<string | null>(null);
   const host = "127.0.0.1:8001";
+  const apiHost = "";
   const [isAdmin, setIsAdmin] = useState<boolean>(false);
 
   // useEffect(() => {
@@ -298,7 +298,7 @@ const App: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    const ws = new WebSocket("ws://127.0.0.1:8080/ws");
+    const ws = new WebSocket("ws://" + apiHost + "/ws");
     ws.onmessage = (event) => {
       try {
         const incomingNode: liveInfo = JSON.parse(event.data);
@@ -376,7 +376,7 @@ const App: React.FC = () => {
           />
           <Route
             path="/network-settings"
-            element={<NetworkAndServerAdmin host={host} isAdmin={isAdmin} />}
+            element={<NetworkAndServerAdmin host={apiHost} isAdmin={isAdmin} />}
           />
         </Routes>
       </Router>

@@ -221,7 +221,7 @@ const App: React.FC = () => {
   const [currUser, setCurrUser] = useState<string>("");
   // const [host, setHost] = useState<string | null>(null);
   const host = "127.0.0.1:8001";
-  const apiHost = "";
+  const apiHost = "127.0.0.1:3000";
   const [isAdmin, setIsAdmin] = useState<boolean>(false);
 
   // useEffect(() => {
@@ -265,7 +265,7 @@ const App: React.FC = () => {
   const [pathData, setPathData] = useState<updateRouteData>();
 
   useEffect(() => {
-    fetch("http://127.0.0.1:8080/update-routes")
+    fetch("http://" + apiHost + "/admin/update-routes")
       .then((response) => {
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -298,7 +298,7 @@ const App: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    const ws = new WebSocket("ws://" + apiHost + "/ws");
+    const ws = new WebSocket("ws://" + apiHost + "/info/live");
     ws.onmessage = (event) => {
       try {
         const incomingNode: liveInfo = JSON.parse(event.data);

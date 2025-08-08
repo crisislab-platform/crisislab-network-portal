@@ -1,8 +1,10 @@
 #[macro_use]
 extern crate rocket;
+use rocket::fairing::AdHoc;
 use rocket::fs::NamedFile;
 use rocket::fs::{relative, FileServer};
 use rocket::response::Redirect;
+use rocket_cors::{AllowedHeaders, AllowedMethods, AllowedOrigins, CorsOptions};
 use std::path::Path;
 use std::path::PathBuf;
 
@@ -11,7 +13,6 @@ fn fallback(path: PathBuf) -> Redirect {
     // Optionally, you could inspect the path or log it.
     Redirect::to(uri!(index))
 }
-
 
 #[get("/")]
 async fn index() -> Option<NamedFile> {

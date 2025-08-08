@@ -12,13 +12,13 @@ export default function NetworkAndServerAdmin({
   host,
   isAdmin,
 }: NetworkAndServerAdminProps) {
-  const [broadcastInterval, setBroadcastInterval] = useState<number>(-1);
+  const [broadcastInterval, setBroadcastInterval] = useState<number>(0);
   const [channelName, setChannelName] = useState<string>("");
-  const [ping_timeout_seconds, setPing_timeout_seconds] = useState<number>(-1);
+  const [ping_timeout_seconds, setPing_timeout_seconds] = useState<number>(0);
   const [get_settings_timeout_seconds, setGet_setting_timeout_seconds] =
-    useState<number>(-1);
+    useState<number>(0);
   const [signal_data_timeout_seconds, setSignal_data_timeout_seconds] =
-    useState<number>(-1);
+    useState<number>(0);
   const [route_cost_weight, setRoute_cost_weight] = useState<number>(0);
   const [route_hops_weight, setRoute_hops_weight] = useState<number>(0);
 
@@ -43,7 +43,8 @@ export default function NetworkAndServerAdmin({
       );
 
       if (!response.ok) {
-        console.log("failed to set mesh settings: " + response.text());
+        const msg = await response.text();
+        console.log("failed to set mesh settings: " + msg);
         return;
       }
     } catch (err) {
@@ -82,7 +83,7 @@ export default function NetworkAndServerAdmin({
   };
 
   useEffect(() => {
-    fetch("http://127.0.0.1:8000/get-mesh-settings")
+    fetch("http://" + host + "/get-mesh-settings")
       .then((response) => {
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -98,7 +99,7 @@ export default function NetworkAndServerAdmin({
         console.error("Error fetching mesh settings");
       });
 
-    fetch("http://127.0.0.1:8000/get-server-settings")
+    fetch("http://" + host + "/get-server-settings")
       .then((response) => {
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -124,10 +125,10 @@ export default function NetworkAndServerAdmin({
           <div className="settings-div">
             <label className="settings-label">BroadCastInterval: </label>
             <input
-              type="text"
+              type="number"
               className="settings-input"
               value={broadcastInterval}
-              onChange={(e) => setBroadcastInterval(e.target.value)}
+              onChange={(e) => setBroadcastInterval(e.target.valueAsNumber)}
             />
           </div>
           <div className="settings-div">
@@ -145,16 +146,16 @@ export default function NetworkAndServerAdmin({
               type="number"
               className="settings-input"
               value={ping_timeout_seconds}
-              onChange={(e) => setPing_timeout_seconds(e.target.value)}
+              onChange={(e) => setPing_timeout_seconds(e.target.valueAsNumber)}
             />
           </div>
           <div className="settings-div">
             <label className="settings-label">Signal Data Timeout (s): </label>
             <input
-              type="text"
+              type="number"
               className="settings-input"
               value={signal_data_timeout_seconds}
-              onChange={(e) => setSignal_data_timeout_seconds(e.target.value)}
+              onChange={(e) => setSignal_data_timeout_seconds(e.target.valueAsNumber)}
             />
           </div>
           <button type="submit" className="settings-submit-button">
@@ -172,10 +173,10 @@ export default function NetworkAndServerAdmin({
                 Get setting timeout (s):{" "}
               </label>
               <input
-                type="text"
+                type="number"
                 className="settings-input"
                 value={get_settings_timeout_seconds}
-                onChange={(e) => setGet_setting_timeout_seconds(e.target.value)}
+                onChange={(e) => setGet_setting_timeout_seconds(e.target.valueAsNumber)}
               />
             </div>
             <div className="settings-div">
@@ -183,10 +184,10 @@ export default function NetworkAndServerAdmin({
                 Set Signal Data timeout (s):
               </label>
               <input
-                type="text"
+                type="number"
                 className="settings-input"
                 value={signal_data_timeout_seconds}
-                onChange={(e) => setSignal_data_timeout_seconds(e.target.value)}
+                onChange={(e) => setSignal_data_timeout_seconds(e.target.valueAsNumber)}
               />
             </div>
             <div className="settings-div">
@@ -195,16 +196,16 @@ export default function NetworkAndServerAdmin({
                 type="number"
                 className="settings-input"
                 value={route_cost_weight}
-                onChange={(e) => setRoute_cost_weight(e.target.value)}
+                onChange={(e) => setRoute_cost_weight(e.target.valueAsNumber)}
               />
             </div>
             <div className="settings-div">
               <label className="settings-label">Route Hops Weight: </label>
               <input
-                type="text"
+                type="number"
                 className="settings-input"
                 value={route_hops_weight}
-                onChange={(e) => setRoute_hops_weight(e.target.value)}
+                onChange={(e) => setRoute_hops_weight(e.target.valueAsNumber)}
               />
             </div>
             <button type="submit" className="settings-submit-button">

@@ -133,18 +133,6 @@ export type Route = {
   rssi: number;
 };
 
-type NodeInfo = {
-  num: number;
-  user: User;
-  position: Position;
-  snr: number;
-  last_heard: number;
-  device_metrics: DeviceMetrics;
-  channel: number;
-  via_mqtt: boolean;
-  hops_away?: number;
-  is_favorite: boolean;
-};
 
 export type User = {
   id: string;
@@ -261,10 +249,18 @@ const App: React.FC = () => {
     setLoggedIn(false);
   };
 
-  const [nodes, setNodes] = useState<Map<number, liveInfo>>(new Map());
-  const [pathData, setPathData] = useState<updateRouteData>();
+  const [routes, setRoutes] = useState<Map<string, Route>>(new Map());
 
-  useEffect(() => {
+  const canonicalKey = (route: Route): string => {
+    const [a, b] =
+      route.from < route.to ? [route.from, route.to] : [route.to, route.from];
+    return `${a}-${b}`;
+  };
+
+
+  const updateRoutes = async (event) => {
+    event.preventDefault();
+    console.log("sending update routes request");
     fetch("http://" + apiHost + "/admin/update-routes")
       .then((response) => {
         if (!response.ok) {
@@ -291,11 +287,15 @@ const App: React.FC = () => {
           }
         }
         setRoutes(newRoutes);
+        console.log("Routes updated");
       })
       .catch((error) => {
         console.error("Error fetching routes:", error);
       });
-  }, []);
+  }
+
+  const [nodes, setNodes] = useState<Map<number, liveInfo>>(new Map());
+  const [pathData, setPathData] = useState<updateRouteData>();
 
   useEffect(() => {
     const ws = new WebSocket("ws://" + apiHost + "/info/live");
@@ -319,13 +319,6 @@ const App: React.FC = () => {
     };
   }, []);
 
-  const [routes, setRoutes] = useState<Map<string, Route>>(new Map());
-
-  const canonicalKey = (route: Route): string => {
-    const [a, b] =
-      route.from < route.to ? [route.from, route.to] : [route.to, route.from];
-    return `${a}-${b}`;
-  };
 
   return (
     <div className="measure-body center-body">
@@ -342,7 +335,7 @@ const App: React.FC = () => {
           <Route path="/table" element={<Table nodes={nodes} />} />
           <Route
             path="/map"
-            element={<MapPage nodes={nodes} routes={routes} />}
+            element={<MapPage nodes={nodes} routes={routes} updateRoutes={updateRoutes} />}
           />
           <Route
             path="/accounts"

@@ -7,13 +7,13 @@ const MAPBOX_TOKEN = process.env.MAPBOX_TOKEN;
 interface MapPageProps {
   nodes: Map<number, liveInfo>;
   routes: Map<string, Route>;
+  updateRoutes: (event: React.SyntheticEvent) => Promise<void>;
 }
 
-export default function MapPage({ nodes, routes }: MapPageProps) {
+export default function MapPage({ nodes, routes, updateRoutes }: MapPageProps) {
   const nodeList = Array.from(nodes.values());
   const routesList = Array.from(routes.values());
   const navigate = useNavigate();
-
   const [map, setMap] = useState(null);
 
   const defaultCenter = { latitude: 51.505, longitude: -0.09 };
@@ -107,6 +107,7 @@ export default function MapPage({ nodes, routes }: MapPageProps) {
 
   return (
     <div>
+      <button onClick={updateRoutes}>Update Routes</button>
       <div id="map" style={{ height: "100vh", width: "100%" }}></div>
 
       {nodeList.map((node) => {

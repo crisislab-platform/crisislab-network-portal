@@ -9,6 +9,7 @@ import AddUser from "./AddUser";
 import Search from "./Search";
 import NodePage from "./NodePage";
 import NetworkAndServerAdmin from "./NetworkAndServerAdmin";
+import { icon } from "leaflet";
 
 export enum HardwareModel {
   UNSET = 0,
@@ -133,7 +134,6 @@ export type Route = {
   rssi: number;
 };
 
-
 export type User = {
   id: string;
   long_name: string;
@@ -199,6 +199,11 @@ export type liveInfo = {
   DeviceMetrics: DeviceMetrics;
 };
 
+export type livePacket = {
+  data?: liveInfo[];
+  error?: string;
+}
+
 type RoutePath = number[];
 type updateRouteData = {
   [startNodeId: number]: RoutePath[];
@@ -257,7 +262,6 @@ const App: React.FC = () => {
     return `${a}-${b}`;
   };
 
-
   const updateRoutes = async (event) => {
     event.preventDefault();
     console.log("sending update routes request");
@@ -292,21 +296,30 @@ const App: React.FC = () => {
       .catch((error) => {
         console.error("Error fetching routes:", error);
       });
-  }
+  };
 
   const [nodes, setNodes] = useState<Map<number, liveInfo>>(new Map());
   const [pathData, setPathData] = useState<updateRouteData>();
 
   useEffect(() => {
+    console.log("Updated nodes:", nodes);
+  }, [nodes]);
+
+  useEffect(() => {
     const ws = new WebSocket("ws://" + apiHost + "/info/live");
     ws.onmessage = (event) => {
       try {
-        const incomingNode: liveInfo = JSON.parse(event.data);
-        setNodes((prevNodes) => {
-          const newNodes = new Map(prevNodes);
-          newNodes.set(incomingNode.nodenum, incomingNode);
-          return newNodes;
-        });
+        const incomingData: liveInfo[] = JSON.parse(event.data);
+        if (incomingData === undefined) {
+          console.log("Unusual live info message: " + incomingData);
+          return;
+        }
+        console.log(incomingData);
+        incomingData.forEach((lI: liveInfo) => setNodes(prevNodes => {
+          const update = new Map(prevNodes);
+          update.set(lI.nodenum, lI);
+          return update;
+        }));
       } catch (error) {
         console.error("Error parsing NodeInfo node:", error);
       }
@@ -318,7 +331,6 @@ const App: React.FC = () => {
       ws.close();
     };
   }, []);
-
 
   return (
     <div className="measure-body center-body">
@@ -335,7 +347,13 @@ const App: React.FC = () => {
           <Route path="/table" element={<Table nodes={nodes} />} />
           <Route
             path="/map"
-            element={<MapPage nodes={nodes} routes={routes} updateRoutes={updateRoutes} />}
+            element={
+              <MapPage
+                nodes={nodes}
+                routes={routes}
+                updateRoutes={updateRoutes}
+              />
+            }
           />
           <Route
             path="/accounts"

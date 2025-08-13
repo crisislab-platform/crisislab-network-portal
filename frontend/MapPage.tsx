@@ -18,7 +18,7 @@ export default function MapPage({ nodes, routes, updateRoutes }: MapPageProps) {
 
   const defaultCenter = { latitude: 51.505, longitude: -0.09 };
 
-  const getPosition = (nodenum) => {
+  const getPosition = (nodenum: number) => {
     const node = nodes.get(nodenum);
     if (
       !node ||
@@ -48,9 +48,6 @@ export default function MapPage({ nodes, routes, updateRoutes }: MapPageProps) {
     }
   }
 
-  const goToNodePage = (num) => {
-    navigate("/nodepage", { state: { nodenum: num } });
-  };
 
   useEffect(() => {
     const mapInstance = new mapboxgl.Map({
@@ -80,8 +77,15 @@ export default function MapPage({ nodes, routes, updateRoutes }: MapPageProps) {
           const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(`
                 <h3>${node.user.long_name}</h3>
                 <p><strong>Last Heard: </strong> ${node.timestamp}</p>
-                <button onClick={goToNodePage(${node.nodenum})}>Info</button>
+                <button id="node-btn-${node.nodenum}">Info</button>
               `);
+
+          popup.on('open', () => {
+            const btn = document.getElementById(`node-btn-${node.nodenum}`);
+            btn?.addEventListener('click', () => {
+              navigate("/nodepage", { state: { nodenum: node.nodenum } });
+            });
+          });
           marker.setPopup(popup);
         }
       });
@@ -117,7 +121,9 @@ export default function MapPage({ nodes, routes, updateRoutes }: MapPageProps) {
         return (
           <div key={node.nodenum}>
             <p>{node.user.long_name}</p>
-            <button onClick={() => goToNodePage(node.nodenum)}>
+            <button onClick={() => {
+              navigate("/nodepage", { state: { nodenum: node.nodenum } });
+            }}>
               Node Page
             </button>
           </div>

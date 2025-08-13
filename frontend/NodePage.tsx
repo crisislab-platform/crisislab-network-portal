@@ -10,9 +10,11 @@ interface NodePageProps {
 
 export default function NodePage({ nodes, isAdmin }: NodePageProps) {
   const location = useLocation();
-  const nodenum = location.state.nodenum;
-  console.log(nodenum);
-  const nodedata = nodes.get(Number(nodenum));
+  const nn = location.state?.nodenum;
+  console.log("nodepage nodeum");
+  console.log(nn);
+  console.log(Array.from(nodes.keys()));
+  const nodedata = nodes.get(nn);
   console.log(nodedata);
 
   return (

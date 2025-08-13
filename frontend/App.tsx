@@ -199,10 +199,11 @@ export type liveInfo = {
   DeviceMetrics: DeviceMetrics;
 };
 
-export type livePacket = {
-  data?: liveInfo[];
-  error?: string;
-}
+type liveInfoArray = liveInfo[];
+type liveInfoSingle = { data: liveInfo };
+type liveInfoError = { error: string };
+
+type liveInfoPacket = liveInfoArray | liveInfoSingle | liveInfoError;
 
 type RoutePath = number[];
 type updateRouteData = {
@@ -309,17 +310,35 @@ const App: React.FC = () => {
     const ws = new WebSocket("ws://" + apiHost + "/info/live");
     ws.onmessage = (event) => {
       try {
-        const incomingData: liveInfo[] = JSON.parse(event.data);
-        if (incomingData === undefined) {
-          console.log("Unusual live info message: " + incomingData);
+        console.log(event.data);
+        const parsed: liveInfoPacket = JSON.parse(event.data);
+
+        if ("error" in parsed) {
+          console.error("An error from the server: ", parsed.error);
           return;
         }
-        console.log(incomingData);
-        incomingData.forEach((lI: liveInfo) => setNodes(prevNodes => {
-          const update = new Map(prevNodes);
-          update.set(lI.nodenum, lI);
-          return update;
-        }));
+
+        if ("data" in parsed) {
+          const lI = parsed.data;
+          setNodes((prev) => {
+            const updated = new Map(prev);
+            updated.set(lI.nodenum, lI);
+            return updated;
+          });
+          return;
+        }
+
+        if (Array.isArray(parsed)) {
+          setNodes((prev) => {
+            const updated = new Map(prev);
+            parsed.forEach((lI) => updated.set(lI.nodenum, lI));
+            return updated;
+          });
+          return;
+        }
+
+        console.warn("Unknown live endpoint message: ", parsed);
+
       } catch (error) {
         console.error("Error parsing NodeInfo node:", error);
       }

@@ -2,6 +2,9 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { liveInfo, Route } from "./App";
 import mapboxgl from "mapbox-gl";
+import { truncate } from "fs";
+import { type } from "os";
+import { map } from "leaflet";
 const MAPBOX_TOKEN = process.env.MAPBOX_TOKEN;
 
 interface MapPageProps {
@@ -48,7 +51,6 @@ export default function MapPage({ nodes, routes, updateRoutes }: MapPageProps) {
     }
   }
 
-
   useEffect(() => {
     const mapInstance = new mapboxgl.Map({
       container: "map",
@@ -58,17 +60,81 @@ export default function MapPage({ nodes, routes, updateRoutes }: MapPageProps) {
       accessToken: MAPBOX_TOKEN,
     });
 
+    mapInstance.on("load", () => {
+      if (!mapInstance.getSource("routes")) {
+        mapInstance.addSource("routes", {
+          type: "geojson",
+          data: { type: "FeatureCollection", features: [] },
+          lineMetrics: true,
+        });
+      }
+
+      if (!mapInstance.getLayer("routes-layer")) {
+        mapInstance.addLayer({
+          id: "routes-layer",
+          type: "line",
+          source: "routes",
+          layout: {
+            "line-join": "round",
+            "line-cap": "round",
+          },
+          paint: {
+            "line-color": "#1d4ed8",
+            "line-width": 3,
+            "line-opacity": 0.9,
+          },
+        });
+      }
+    });
+
     setMap(mapInstance);
 
     // Cleanup map on unmount
-    return () => mapInstance.remove();
+    return () => {
+      mapInstance.remove();
+    }
   }, []); // Empty array ensures map is only initialized once
+
+  const buildRoutesGJ = () => {
+    const features = routesList
+      .map((route) => {
+        const fromPos = getPosition(route.from);
+        const toPos = getPosition(route.to);
+        if (!fromPos || !toPos) return null;
+
+        return {
+          type: "Feature" as const,
+          properties: {
+            id: `${route.from}->${route.to}`,
+          },
+          geometry: {
+            type: "LineString" as const,
+            coordinates: [
+              [fromPos.longitude, fromPos.latitude],
+              [toPos.longitude, toPos.latitude],
+            ],
+          },
+        };
+      })
+      .filter(Boolean) as any[];
+
+    return { type: "FeatureCollection" as const, features };
+  };
+
+  useEffect(() => {
+    if (!map || !map.isStyleLoaded()) return;
+
+    const src = map.getSource("routes") as mapboxgl.GeoJSONSource | undefined;
+    if (!src) return;
+
+    src.setData(buildRoutesGJ());
+  }, [routesList, nodeList]);
 
   // Add markers and lines once the map is initialized
   useEffect(() => {
     if (map) {
       nodeList.forEach((node) => {
-        const position = getPosition(node.nodenum);
+        const position = getPosition(node.node_num);
         if (position) {
           const { latitude, longitude } = position;
           const marker = new mapboxgl.Marker()
@@ -77,58 +143,42 @@ export default function MapPage({ nodes, routes, updateRoutes }: MapPageProps) {
           const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(`
                 <h3>${node.user.long_name}</h3>
                 <p><strong>Last Heard: </strong> ${node.timestamp}</p>
-                <button id="node-btn-${node.nodenum}">Info</button>
+                <button id="node-btn-${node.node_num}">Info</button>
               `);
 
-          popup.on('open', () => {
-            const btn = document.getElementById(`node-btn-${node.nodenum}`);
-            btn?.addEventListener('click', () => {
-              navigate("/nodepage", { state: { nodenum: node.nodenum } });
+          popup.on("open", () => {
+            const btn = document.getElementById(`node-btn-${node.node_num}`);
+            btn?.addEventListener("click", () => {
+              navigate("/nodepage", { state: { nodenum: node.node_num } });
             });
           });
           marker.setPopup(popup);
         }
       });
 
-      routesList.forEach((route) => {
-        const fromPos = getPosition(route.from);
-        const toPos = getPosition(route.to);
-        if (fromPos && toPos) {
-          const { latitude: fromLat, longitude: fromLng } = fromPos;
-          const { latitude: toLat, longitude: toLng } = toPos;
-
-          new mapboxgl.Polyline({
-            path: [
-              [fromLng, fromLat],
-              [toLng, toLat],
-            ],
-            color: "blue",
-          }).addTo(map);
-        }
-      });
+      // routesList.forEach((route) => {
+      //   const fromPos = getPosition(route.from);
+      //   const toPos = getPosition(route.to);
+      //   if (fromPos && toPos) {
+      //     const { latitude: fromLat, longitude: fromLng } = fromPos;
+      //     const { latitude: toLat, longitude: toLng } = toPos;
+      //
+      //     new mapboxgl.Polyline({
+      //       path: [
+      //         [fromLng, fromLat],
+      //         [toLng, toLat],
+      //       ],
+      //       color: "blue",
+      //     }).addTo(map);
+      //   }
+      // });
     }
-  }, [map, nodeList, routesList]); // Only re-run this effect when map or nodes/routes change
+  }, [map, nodeList]); // Only re-run this effect when map or nodes/routes change
 
   return (
     <div>
-      <button onClick={updateRoutes}>Update Routes</button>
-      <div id="map" style={{ height: "100vh", width: "100%" }}></div>
-
-      {nodeList.map((node) => {
-        const position = getPosition(node.nodenum);
-        if (!position) return null;
-
-        return (
-          <div key={node.nodenum}>
-            <p>{node.user.long_name}</p>
-            <button onClick={() => {
-              navigate("/nodepage", { state: { nodenum: node.nodenum } });
-            }}>
-              Node Page
-            </button>
-          </div>
-        );
-      })}
+      <a className="list-button vremp5" onClick={updateRoutes}>Update Routes</a>
+      <div id="map" style={{ height: "80vh", width: "100%" }}></div>
     </div>
   );
 }

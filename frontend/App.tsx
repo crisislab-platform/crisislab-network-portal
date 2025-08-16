@@ -10,6 +10,7 @@ import Search from "./Search";
 import NodePage from "./NodePage";
 import NetworkAndServerAdmin from "./NetworkAndServerAdmin";
 import { icon } from "leaflet";
+import { parse } from "path";
 
 export enum HardwareModel {
   UNSET = 0,
@@ -131,7 +132,6 @@ export enum AltSource {
 export type Route = {
   to: number;
   from: number;
-  rssi: number;
 };
 
 export type User = {
@@ -192,7 +192,7 @@ export type setServerSettings = {
 };
 
 export type liveInfo = {
-  nodenum: number;
+  node_num: number;
   timestamp: number;
   user: User;
   position: Position;
@@ -209,6 +209,8 @@ type RoutePath = number[];
 type updateRouteData = {
   [startNodeId: number]: RoutePath[];
 };
+
+type routesIn = Record<number, number[]>;
 
 const App: React.FC = () => {
   const [loggedIn, setLoggedIn] = useState<boolean>(false);
@@ -273,26 +275,29 @@ const App: React.FC = () => {
         }
         return response.json();
       })
-      .then((data: updateRouteData) => {
-        const newRoutes = new Map<string, Route>();
+      .then((data: routesIn) => {
+        setRoutes((prev) => {
+          const updated = new Map(prev);
+          console.log("routes");
+          console.log(data);
 
-        for (const startNodeId in data) {
-          const paths = data[startNodeId];
-          for (const path of paths) {
-            let previous: number = Number(startNodeId);
-            for (const waypoint of path) {
-              const key =
-                previous < waypoint
-                  ? `${previous}-${waypoint}`
-                  : `${waypoint}-${previous}`;
-              const value: Route = { to: waypoint, from: previous, rssi: 0 };
-              newRoutes.set(key, value);
-              previous = waypoint;
+          for (const startNodeId in data) {
+            console.log(startNodeId)
+            const nextHops = data[startNodeId];
+            for (const hop of nextHops) {
+              const value: Route = { to: hop, from: Number(startNodeId) };
+              const key = canonicalKey(value);
+              console.log("the key before setting to the routes map");
+              console.log(key);
+              updated.set(key, value);
             }
           }
-        }
-        setRoutes(newRoutes);
+          console.log("updated routes before settings");
+          console.log(updated);
+          return updated;
+        });
         console.log("Routes updated");
+        console.log(routes);
       })
       .catch((error) => {
         console.error("Error fetching routes:", error);
@@ -322,7 +327,9 @@ const App: React.FC = () => {
           const lI = parsed.data;
           setNodes((prev) => {
             const updated = new Map(prev);
-            updated.set(lI.nodenum, lI);
+            console.log("map node num");
+            console.log(lI.node_num);
+            updated.set(lI.node_num, lI);
             return updated;
           });
           return;
@@ -331,14 +338,17 @@ const App: React.FC = () => {
         if (Array.isArray(parsed)) {
           setNodes((prev) => {
             const updated = new Map(prev);
-            parsed.forEach((lI) => updated.set(lI.nodenum, lI));
+            console.log("map node num in array");
+            parsed.forEach((lI) => {
+              console.log(lI.node_num);
+              updated.set(lI.node_num, lI);
+            });
             return updated;
           });
           return;
         }
 
-        console.warn("Unknown live endpoint message: ", parsed);
-
+        console.warn("Unknown live endpoint message: ");
       } catch (error) {
         console.error("Error parsing NodeInfo node:", error);
       }

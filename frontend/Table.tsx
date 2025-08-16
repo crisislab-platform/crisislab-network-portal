@@ -33,9 +33,9 @@ export default function Table({ nodes }: TableProps) {
           {nodeList.map((node) => {
             console.log(node);
             return (
-              <tr key={node.nodenum}>
+              <tr key={node.node_num}>
                 <td style={{ border: "1px solid #ddd", padding: "8px" }}>
-                  {node.nodenum}
+                  {node.node_num}
                 </td>
                 <td style={{ border: "1px solid #ddd", padding: "8px" }}>
                   {node.user.id}
@@ -50,7 +50,7 @@ export default function Table({ nodes }: TableProps) {
                   {new Date(node.timestamp * 1000).toLocaleString()}
                 </td>
               </tr>
-            )
+            );
           })}
         </tbody>
       </table>

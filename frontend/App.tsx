@@ -339,6 +339,7 @@ const App: React.FC = () => {
           setNodes((prev) => {
             const updated = new Map(prev);
             console.log("map node num in array");
+            console.log(parsed.length);
             parsed.forEach((lI) => {
               console.log(lI.node_num);
               updated.set(lI.node_num, lI);

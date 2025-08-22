@@ -1,7 +1,12 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { liveInfo } from "./App";
 
-export default function Search({ nodes }) {
+interface SearchProps {
+  nodes: Map<number, liveInfo>;
+}
+
+export default function Search({ nodes }: SearchProps) {
   const [num, setNum] = useState<string>("");
   const [username, setUsername] = useState<string>("");
   const [devShortName, setDevShortName] = useState<string>("");
@@ -76,10 +81,6 @@ export default function Search({ nodes }) {
               <th style={{ border: "1px solid #ddd", padding: "8px" }}>
                 Short Name
               </th>
-              <th style={{ border: "1px solid #ddd", padding: "8px" }}>SNR</th>
-              <th style={{ border: "1px solid #ddd", padding: "8px" }}>
-                Last Heard
-              </th>
               <th style={{ border: "1px solid #ddd", padding: "8px" }}>
                 {" "}
                 Node Info Page{" "}
@@ -90,15 +91,16 @@ export default function Search({ nodes }) {
             {nodeList
               .filter(
                 (node) =>
-                  node.num === Number(num) ||
+                  num === "" ||
+                  node.node_num === Number(num) ||
                   node.user.id == username ||
                   node.user.short_name === devShortName ||
                   node.user.long_name === devLongName,
               )
               .map((node) => (
-                <tr key={node.num}>
+                <tr key={node.node_num}>
                   <td style={{ border: "1px solid #ddd", padding: "8px" }}>
-                    {node.num}
+                    {node.node_num}
                   </td>
                   <td style={{ border: "1px solid #ddd", padding: "8px" }}>
                     {node.user.id}
@@ -110,17 +112,13 @@ export default function Search({ nodes }) {
                     {node.user.short_name}
                   </td>
                   <td style={{ border: "1px solid #ddd", padding: "8px" }}>
-                    {node.snr}
-                  </td>
-                  <td style={{ border: "1px solid #ddd", padding: "8px" }}>
-                    {new Date(node.last_heard * 1000).toLocaleString()}
-                  </td>
-                  <td style={{ border: "1px solid #ddd", padding: "8px" }}>
                     <a
                       href="#"
                       onClick={(e) => {
                         e.preventDefault();
-                        navigate("/nodepage", { state: { nodenum: node.num } });
+                        navigate("/nodepage", {
+                          state: { nodenum: node.node_num },
+                        });
                       }}
                     >
                       Go to Target

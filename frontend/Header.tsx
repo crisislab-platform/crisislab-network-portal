@@ -1,6 +1,15 @@
 import React from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
+interface HeaderProps {
+  loggedIn: boolean;
+  setLoggedIn: React.Dispatch<React.SetStateAction<boolean>>;
+  currUser: string;
+  setCurrUser: React.Dispatch<React.SetStateAction<string>>;
+  host: string;
+  logout: (event: React.SyntheticEvent) => Promise<void>;
+}
+
 export default function Header({
   loggedIn,
   setLoggedIn,
@@ -8,7 +17,7 @@ export default function Header({
   setCurrUser,
   host,
   logout,
-}) {
+}: HeaderProps) {
   const navigate = useNavigate();
   const location = useLocation();
   const goToTable = () => {
@@ -22,6 +31,9 @@ export default function Header({
   };
   const goToSearch = () => {
     navigate("/search");
+  };
+  const goToSettings = () => {
+    navigate("/network-settings");
   };
   const logOutToRoot = async (event) => {
     console.log("logout function:", logout);
@@ -63,6 +75,11 @@ export default function Header({
         >
           {loggedIn ? "Account" : "Login"}
         </a>
+        {loggedIn && (
+          <a className="nav-button" onClick={goToSettings}>
+            Settings
+          </a>
+        )}
         {loggedIn && (
           <a className="nav-button" onClick={logOutToRoot}>
             Logout

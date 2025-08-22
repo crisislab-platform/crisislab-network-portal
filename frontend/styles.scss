@@ -1,4 +1,6 @@
+@import "~@srcery-colors/srcery-palette";
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap");
+@import "~mapbox-gl";
 * {
     font-family: "Inter", sans-serif;
 }
@@ -15,22 +17,22 @@
     margin-left: auto;
     margin-right: auto;
     padding: 1rem 1rem;
-    color: #eee;
-    background: #555;
-    border: 1px solid #000;
-    box-shadow: 4px 4px #333;
+    color: var(--srcery-palette-primary-bright-white);
+    background: var(--srcery-palette-secondary-xgray3);
+    border: 1px solid var(--srcery-palette-secondary-hard-black);
+    box-shadow: 4px 4px var(--srcery-palette-secondary-xgray1);
 }
 
 html {
-    background: #222;
+    background: var(--srcery-palette-primary-black);
 }
 
 .nav-button {
     flex: 1;
-    background: #888;
-    color: #eee;
-    border: 1px solid #000;
-    box-shadow: 2px 2px #666;
+    background: var(--srcery-palette-secondary-xgray5);
+    color: var(--srcery-palette-primary-bright-white);
+    border: 1px solid var(--srcery-palette-secondary-hard-black);
+    box-shadow: 2px 2px var(--srcery-palette-secondary-xgray2);
     height: 2.5rem;
     margin-top: 0.5rem;
     display: flex;
@@ -45,13 +47,28 @@ html {
     padding-right: 0.5rem;
     line-height: normal;
     position: relative;
+    transition: box-shadow 0.4s ease-in-out;
+}
+
+.nav-button:hover {
+    box-shadow: 0 0 15px 5px #68a8e400;
+}
+.nav-button:hover {
+    box-shadow: 0 0 15px 5px #68a8e480;
+}
+.nav-button.active {
+    background: var(--srcery-palette-primary-blue);
+}
+
+.nav-button:not(:last-child) {
+    margin-right: 0.5rem;
 }
 
 .list-button {
-    background: #888;
-    color: #eee;
-    border: 1px solid #000;
-    box-shadow: 2px 2px #666;
+    background: var(--srcery-palette-secondary-xgray5);
+    color: var(--srcery-palette-primary-hard-white);
+    border: 1px solid var(--srcery-palette-secondary-hard-black);
+    box-shadow: 2px 2px var(--srcery-palette-secondary-xgray2);
     height: 2rem;
     margin-top: 0.25rem;
     margin-bottom: 0.25rem;
@@ -67,14 +84,29 @@ html {
     padding-right: 0.5rem;
     line-height: normal;
     position: relative;
+    transition: box-shadow 0.4s ease-in-out;
+}
+
+.list-button:hover {
+    box-shadow: 0 0 15px 5px #68a8e400;
+}
+.list-button:hover {
+    box-shadow: 0 0 15px 5px #68a8e480;
+}
+.list-button.active {
+    background: var(--srcery-palette-primary-blue);
+}
+
+.vremp5 {
+    margin: 0.5rem 0rem;
 }
 
 .table-div {
     display: flex;
     flex-direction: column;
-    background: #888;
-    color: #fff;
-    border: 1px solid #000;
+    background: var(--srcery-palette-secondary-xgray5);
+    color: var(--srcery-palette-primary-hard-white);
+    border: 1px solid var(--srcery-palette-secondary-hard-black);
     align-items: center;
     justify-content: center;
     text-align: center;
@@ -85,9 +117,9 @@ html {
 .form-div {
     display: flex;
     flex-direction: column;
-    background: #888;
-    color: #eee;
-    border: 1px solid #000;
+    background: var(--srcery-palette-secondary-xgray5);
+    color: var(--srcery-palette-primary-hard-white);
+    border: 1px solid var(--srcery-palette-secondary-hard-black);
     height: 20rem;
     align-items: center;
     justify-content: center;
@@ -99,9 +131,9 @@ html {
 .form-div-h {
     display: flex;
     flex-direction: row;
-    background: #888;
-    color: #eee;
-    border: 1px solid #000;
+    background: var(--srcery-palette-secondary-xgray5);
+    color: var(--srcery-palette-primary-hard-white);
+    border: 1px solid var(--srcery-palette-secondary-hard-black);
     height: 4rem;
     align-items: center;
     justify-content: center;
@@ -112,12 +144,12 @@ html {
 
 .form-section-div {
     flex: auto;
-    background: #555;
-    color: #eee;
+    background: var(--srcery-palette-secondary-xgray3);
+    color: var(--srcery-palette-primary-hard-white);
     margin-top: 2rem;
     margin-bottom: 2rem;
-    box-shadow: 2px 2px #333;
-    border: 1px solid #000;
+    box-shadow: 2px 2px var(--srcery-palette-secondary-xgray1);
+    border: 1px solid var(--srcery-palette-secondary-hard-black);
     justify-content: center;
     text-align: center;
     vertical-align: center;
@@ -128,12 +160,12 @@ html {
 
 .form-section-div-h {
     display: flex;
-    background: #555;
-    color: #eee;
+    background: var(--srcery-palette-secondary-xgray3);
+    color: var(--srcery-palette-primary-hard-white);
     margin-top: 2rem;
     margin-bottom: 2rem;
-    box-shadow: 2px 2px #333;
-    border: 1px solid #000;
+    box-shadow: 2px 2px var(--srcery-palette-secondary-xgray1);
+    border: 1px solid var(--srcery-palette-secondary-hard-black);
     justify-content: center;
     text-align: center;
     vertical-align: center;
@@ -146,11 +178,11 @@ html {
 .form-input {
     position: relative;
     font-size: 1rem;
-    background: #555;
-    background-color: #555;
-    color: #eee;
+    background: var(--srcery-palette-secondary-xgray3);
+    background-color: var(--srcery-palette-secondary-xgray3);
+    color: var(--srcery-palette-primary-hard-white);
     border-top: none;
-    border-bottom: 1px solid #000;
+    border-bottom: 1px solid var(--srcery-palette-secondary-hard-black);
     border-left: none;
     border-right: none;
     box-shadow: none;
@@ -163,12 +195,19 @@ html {
 }
 
 .form-submit-button {
-    background: #555;
-    color: #eee;
-    box-shadow: 2px 2px #333;
-    border: 1px solid #000;
+    background: var(--srcery-palette-secondary-xgray3);
+    color: var(--srcery-palette-primary-hard-white);
+    box-shadow: 2px 2px var(--srcery-palette-secondary-xgray1);
+    border: 1px solid var(--srcery-palette-secondary-hard-black);
     height: 2rem;
     width: 6rem;
+    transition: box-shadow 0.4s ease-in-out;
+}
+.form-submit-button:hover {
+    box-shadow: 0 0 15px 5px #68a8e400;
+}
+.form-submit-button:hover {
+    box-shadow: 0 0 15px 5px #68a8e480;
 }
 
 .mi {
@@ -176,24 +215,19 @@ html {
 }
 
 .form-submit-button-search {
-    background: #555;
-    color: #eee;
-    box-shadow: 2px 2px #333;
-    border: 1px solid #000;
+    background: var(--srcery-palette-secondary-xgray3);
+    color: var(--srcery-palette-primary-hard-white);
+    box-shadow: 2px 2px var(--srcery-palette-secondary-xgray1);
+    border: 1px solid var(--srcery-palette-secondary-hard-black);
     height: 2.5rem;
     width: 6rem;
+    transition: box-shadow 0.4s ease-in-out;
 }
-
-.nav-button:hover {
-    background: #333;
+.form-submit-button-search:hover {
+    box-shadow: 0 0 15px 5px #68a8e400;
 }
-
-.nav-button.active {
-    background: #458588;
-}
-
-.nav-button:not(:last-child) {
-    margin-right: 0.5rem;
+.form-submit-button-search:hover {
+    box-shadow: 0 0 15px 5px #68a8e480;
 }
 
 .center {
@@ -212,24 +246,54 @@ html {
 
     .left {
         width: 25rem;
-        background: #888;
-        box-shadow: 2px 2px #666;
-        border: 1px solid #000;
+        background: var(--srcery-palette-secondary-xgray5);
+        box-shadow: 2px 2px var(--srcery-palette-secondary-xgray2);
+        border: 1px solid var(--srcery-palette-secondary-hard-black);
         padding: 0.25rem 0.25rem;
     }
 
     .vr {
         display: block;
-        border-left: 2px dotted #000;
+        border-left: 2px dotted var(--srcery-palette-secondary-hard-black);
         margin: 0.25rem 1rem;
         align-self: stretch;
     }
 
     .right {
         flex: 1;
-        background: #888;
-        box-shadow: 2px 2px #666;
-        border: 1px solid #000;
+        background: var(--srcery-palette-secondary-xgray5);
+        box-shadow: 2px 2px var(--srcery-palette-secondary-xgray2);
+        border: 1px solid var(--srcery-palette-secondary-hard-black);
+        padding: 0.25rem 0.25rem;
+    }
+}
+
+.settingspage {
+    display: flex;
+    align-items: center;
+
+    padding: 0.25rem 0.25rem;
+
+    .left {
+        flex: 1;
+        background: var(--srcery-palette-secondary-xgray5);
+        box-shadow: 2px 2px var(--srcery-palette-secondary-xgray2);
+        border: 1px solid var(--srcery-palette-secondary-hard-black);
+        padding: 0.25rem 0.25rem;
+    }
+
+    .vr {
+        display: block;
+        border-left: 2px dotted var(--srcery-palette-secondary-hard-black);
+        margin: 0.25rem 1rem;
+        align-self: stretch;
+    }
+
+    .right {
+        flex: 1;
+        background: var(--srcery-palette-secondary-xgray5);
+        box-shadow: 2px 2px var(--srcery-palette-secondary-xgray2);
+        border: 1px solid var(--srcery-palette-secondary-hard-black);
         padding: 0.25rem 0.25rem;
     }
 }
@@ -251,42 +315,125 @@ html {
 
 .hr-solid {
     border-top: none;
-    border-bottom: 1px solid #000;
-    margin-bottom: 1rem;
+    border-bottom: 1px solid var(--srcery-palette-secondary-hard-black);
+    margin: 1rem 0rem;
 }
 
 .hr-dotted {
     border-top: none;
-    border-bottom: 2px dotted #000;
+    border-bottom: 2px dotted var(--srcery-palette-secondary-hard-black);
     margin-bottom: 1rem;
 }
 
 .all-users-div {
-    background: #aaa;
+    background: var(--srcery-palette-secondary-xgray6);
     margin-top: 0.125rem;
     padding-top: 0.125rem;
     margin-bottom: 0.125rem;
     padding-bottom: 0.125rem;
     padding-left: 0.25rem;
     padding-right: 0.25rem;
-    box-shadow: 2px 2px #bbb;
+    box-shadow: 2px 2px var(--srcery-palette-secondary-xgray8);
 }
 
 .users-li {
-    background: #ccc;
+    background: var(--srcery-palette-secondary-xgray10);
     list-style-type: none;
 }
 
 .map-wrapper {
     height: 40rem;
     overflow: hidden;
-    border: 1px solid #000;
+    border: 1px solid var(--srcery-palette-secondary-hard-black);
     position: relative;
     margin: 0.25rem 0.25%;
     padding: 0.25rem 0.5rem;
-    background: #888;
-    box-shadow: 2px 2px #666;
+    background: var(--srcery-palette-secondary-xgray5);
+    box-shadow: 2px 2px var(--srcery-palette-secondary-xgray2);
     align-items: center;
     justify-content: center;
     text-align: center;
+}
+
+.settings-box {
+    display: flex;
+    flex-direction: column;
+    background: var(--srcery-palette-secondary-xgray5);
+    color: var(--srcery-palette-primary-hard-white);
+    border: 1px solid var(--srcery-palette-secondary-hard-black);
+    height: 20rem;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 0.5rem 0.5rem;
+}
+
+.settings-div {
+    flex: auto;
+    display: flex;
+    flex-direction: row;
+    background: var(--srcery-palette-secondary-xgray3);
+    color: var(--srcery-palette-primary-hard-white);
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 2px 2px var(--srcery-palette-secondary-xgray1);
+    border: 1px solid var(--srcery-palette-secondary-hard-black);
+    justify-content: center;
+    text-align: center;
+    vertical-align: center;
+    padding: 0.5rem 2rem;
+    margin-left: 0.25rem;
+    margin-right: 0.25rem;
+}
+
+.settings-invisi-div {
+    flex: auto;
+    display: flex;
+    flex-direction: row;
+    background: transparent;
+    color: var(--srcery-palette-primary-hard-white);
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+    justify-content: center;
+    text-align: center;
+    vertical-align: center;
+    padding: 0.5rem 2rem;
+    margin-left: 0.25rem;
+    margin-right: 0.25rem;
+}
+
+.settings-input {
+    position: relative;
+    font-size: 1rem;
+    background: var(--srcery-palette-secondary-xgray3);
+    background-color: var(--srcery-palette-secondary-xgray3);
+    color: var(--srcery-palette-primary-hard-white);
+    border-top: none;
+    border-bottom: 1px solid var(--srcery-palette-secondary-hard-black);
+    border-left: none;
+    border-right: none;
+    box-shadow: none;
+    outline: none;
+}
+
+.settings-label {
+    font-size: 1rem;
+    margin: 0rem 0.5rem;
+}
+
+.settings-submit-button {
+    background: var(--srcery-palette-secondary-xgray3);
+    color: var(--srcery-palette-primary-hard-white);
+    box-shadow: 2px 2px var(--srcery-palette-secondary-xgray1);
+    border: 1px solid var(--srcery-palette-secondary-hard-black);
+    padding: 0.4rem 0.5rem;
+    margin: 0.5rem 0.5re;
+    transition: box-shadow 0.4s ease-in-out;
+}
+
+.settings-submit-button:hover {
+    box-shadow: 0 0 15px 5px #68a8e400;
+}
+.settings-submit-button:hover {
+    box-shadow: 0 0 15px 5px #68a8e480;
 }

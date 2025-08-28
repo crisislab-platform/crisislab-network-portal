@@ -199,10 +199,9 @@ export type liveInfo = {
   DeviceMetrics: DeviceMetrics;
 };
 
-type liveInfoArray = liveInfo[];
-type liveInfoSingle = { data: liveInfo };
+type liveInfoArray = { cache: liveInfo[] };
+type liveInfoSingle = { telemetry: liveInfo };
 type liveInfoError = { error: string };
-
 type liveInfoPacket = liveInfoArray | liveInfoSingle | liveInfoError;
 
 type RoutePath = number[];
@@ -312,7 +311,7 @@ const App: React.FC = () => {
   }, [nodes]);
 
   useEffect(() => {
-    const ws = new WebSocket("ws://" + apiHost + "/info/live");
+    const ws = new WebSocket("ws://" + apiHost + "/telemetry/socket");
     ws.onmessage = (event) => {
       try {
         console.log(event.data);
@@ -323,8 +322,8 @@ const App: React.FC = () => {
           return;
         }
 
-        if ("data" in parsed) {
-          const lI = parsed.data;
+        if ("telemetry" in parsed) {
+          const lI = parsed.telemetry;
           setNodes((prev) => {
             const updated = new Map(prev);
             console.log("map node num");
@@ -335,12 +334,10 @@ const App: React.FC = () => {
           return;
         }
 
-        if (Array.isArray(parsed)) {
+        if ("cache" in parsed) {
           setNodes((prev) => {
             const updated = new Map(prev);
-            console.log("map node num in array");
-            console.log(parsed.length);
-            parsed.forEach((lI) => {
+            parsed.cache.forEach((lI) => {
               console.log(lI.node_num);
               updated.set(lI.node_num, lI);
             });
